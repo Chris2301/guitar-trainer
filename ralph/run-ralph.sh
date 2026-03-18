@@ -18,7 +18,8 @@ if [ ! -f "$CLAUDE_CREDENTIALS" ]; then
     exit 1
 fi
 
-docker build -t ralph-agent .
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+docker build -t ralph-agent "$SCRIPT_DIR"
 
 docker run -it --rm \
   --name ralph-agent \
