@@ -28,9 +28,9 @@
 
 ### 5. Completion
 - [x] Updated tasks.md — marked `[x]`
-- [ ] Committed with conventional commit message
+- [x] Committed with conventional commit message
 
-**Commit:** pending
+**Commit:** 7127622 feat: add i18n translations for theme toggle aria-labels and fix NL fretboard translation
 
 ## Result
-**Status:** [ ] COMPLETE  [ ] BLOCKED
+**Status:** [x] COMPLETE  [ ] BLOCKED
