@@ -19,7 +19,7 @@ The WHAT
 - [x] 3.1 Implement game state machine: `SHOW_NOTE` → `SHOW_ANSWER` → next note
 - [x] 3.2 Timer logic: 5 seconds show note, 3 seconds show answer
 - [x] 3.3 Integration with `ProgressionService` — request next random note
-- [ ] 3.4 `FretboardFlashPageComponent` — composition of note display, fretboard and game controls
+- [x] 3.4 `FretboardFlashPageComponent` — composition of note display, fretboard and game controls
 
 ## 4. Navigation and Routing
 - [ ] 4.1 Lazy-loaded child route `/learn/fretboard-flash`

@@ -1,0 +1,31 @@
+<div class="fretboard-flash-page" data-testid="fretboard-flash-page">
+  @if (!isIdle()) {
+    <div class="note-display" data-testid="note-display">
+      {{ currentNote()?.note }}
+    </div>
+  }
+
+  <app-fretboard-display [note]="fretboardNote()" />
+
+  <div class="game-controls" data-testid="game-controls">
+    @if (isIdle()) {
+      <button
+        data-testid="start-button"
+        class="game-button game-button--start"
+        (click)="start()"
+        i18n="Start game button@@fretboardFlash.startButton"
+      >
+        Start
+      </button>
+    } @else {
+      <button
+        data-testid="stop-button"
+        class="game-button game-button--stop"
+        (click)="stop()"
+        i18n="Stop game button@@fretboardFlash.stopButton"
+      >
+        Stop
+      </button>
+    }
+  </div>
+</div>

@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+.fretboard-flash-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.note-display {
+  font-size: 6rem;
+  font-weight: 800;
+  color: var(--gt-primary);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1;
+}
+
+.game-controls {
+  margin-top: 1.5rem;
+}
+
+.game-button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &--start {
+    background-color: var(--gt-accent);
+    color: var(--gt-hero-text);
+  }
+
+  &--stop {
+    background-color: var(--gt-neutral-mid);
+    color: var(--gt-hero-text);
+  }
+}
