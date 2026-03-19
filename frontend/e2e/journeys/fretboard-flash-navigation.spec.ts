@@ -1,17 +1,15 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Learn Page', () => {
-  test('should display exercises and allow navigation to Fretboard Flash', async ({ page }) => {
+test.describe('User navigates from Learn page to Fretboard Flash', () => {
+  test('should see Fretboard Flash card on Learn page, click it, and arrive at the game page', async ({ page }) => {
+    // User starts at the Learn page
     await page.goto('/learn');
 
+    // User sees the Learn section with exercises
     const learnSection = page.getByTestId('learn-section');
     await expect(learnSection).toBeVisible();
 
-    const heading = learnSection.locator('h2');
-    await expect(heading).toBeVisible();
-    await expect(heading).toContainText(/learn/i);
-
-    // Fretboard Flash card should be visible with title and description
+    // User sees the Fretboard Flash exercise card with title and description
     const fretboardFlashCard = page.getByTestId('exercise-fretboard-flash');
     await expect(fretboardFlashCard).toBeVisible();
     await expect(fretboardFlashCard).toContainText(/fretboard flash/i);
@@ -19,8 +17,12 @@ test.describe('Learn Page', () => {
     const description = page.getByTestId('exercise-fretboard-flash-description');
     await expect(description).toBeVisible();
 
-    // Clicking the card navigates to /learn/fretboard-flash
+    // User clicks the Fretboard Flash card to navigate to the game
     await fretboardFlashCard.click();
     await expect(page).toHaveURL(/\/learn\/fretboard-flash/);
+
+    // User sees the Fretboard Flash game page sentinel element
+    const gamePage = page.getByTestId('fretboard-flash-page');
+    await expect(gamePage).toBeVisible();
   });
 });

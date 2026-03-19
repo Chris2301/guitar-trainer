@@ -1,86 +1,55 @@
-# Review Feedback — Task 5.3: Visual styling of note marker (color, size, animation)
+# Review Feedback — Task 6.1: Playwright test: navigation from Learn page to Fretboard Flash
 ## Status: PASS
 ## Findings
 
 ### codestyle-reviewer
 - **Severity**: Low
-- **Finding**: Blank lines between `@keyframes` percentage selectors are inconsistent with existing animation style in `_animations.scss`
-- **Fix**: Remove blank lines between keyframe selectors
-
-- **Severity**: Low
-- **Finding**: Test helper `collectAllCssRules()` name is overly generic for its single use case
-- **Fix**: Rename to something more descriptive like `collectAllStyleSheetRules()`
-
-- **Severity**: Low
-- **Finding**: Test description "should define a @keyframes..." wording could be clearer
-- **Fix**: Minor rewording suggestion
+- **Finding**: Function signature breaks `{ page }` across two lines, inconsistent with other tests that use single-line format
+- **Fix**: Put `async ({ page }) => {` on one line
 
 ### security-reviewer
 No issues found.
 
 ### performance-reviewer
-- **Severity**: Low
-- **Finding**: Signal `note()` is read 3 times in the template (once in `@if`, twice for `.x` and `.y`). Minor inefficiency.
-- **Fix**: Use `@let n = note()` to cache the signal value in the template
-
-- **Severity**: Low
-- **Finding**: 70% keyframe omits explicit `opacity: 1` — clarity issue, not correctness
-- **Fix**: Add `opacity: 1` at the 70% keyframe
-
-- **Severity**: Low
-- **Finding**: `collectAllCssRules()` scans all stylesheets on each test invocation without caching
-- **Fix**: Cache result or scope scan
+No issues found.
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: Border color `rgba(255, 255, 255, 0.9)` is hardcoded rather than using a CSS custom property, inconsistent with the design token pattern used for glow and accent color
-- **Fix**: Add `--gt-marker-border` to `_theme.scss` and reference it in the component
+- **Finding**: Test starts at `/` and clicks `nav-learn` to reach `/learn`, duplicating navigation already covered in `navigation.spec.ts` and `homepage.spec.ts`. The subject of this test is Learn → Fretboard Flash, not homepage → Learn.
+- **Fix**: Start with `page.goto('/learn')` instead of navigating from homepage.
 
 - **Severity**: Medium
-- **Finding**: Glow color raw `rgba()` values are copy-pasted in `_theme.scss` instead of referencing SCSS variables from `_variables.scss`, following the `$card-shadow` pattern
-- **Fix**: Define `$marker-glow-light` and `$marker-glow-dark` SCSS variables in `_variables.scss`
+- **Finding**: Test asserts `fretboard-flash-page`, `start-button`, and `fretboard-wrapper` visibility on the game page, overlapping with assertions already in `fretboard-flash-theme.spec.ts`. Navigation journey tests should verify URL arrival and one sentinel element, not detailed page content.
+- **Fix**: Limit destination assertions to `toHaveURL` and one sentinel element (e.g. `fretboard-flash-page`). Leave element-level checks to dedicated page tests.
 
 - **Severity**: Low
-- **Finding**: `@keyframes note-marker-appear` is in the component SCSS while `fadeInUp` is in `_animations.scss` — inconsistency in animation placement policy
-- **Fix**: Either move to `_animations.scss` or document the policy
+- **Finding**: Deletion of `learn-page.spec.ts` is appropriate — the new file covers its intent.
+- **Fix**: No action needed.
 
 ## Engineer Assessment
 ### Overall Decision: REFACTOR
 ### Reasoning per finding
 
-#### architect-reviewer — Hardcoded border color instead of CSS custom property
+#### codestyle-reviewer — Function signature line break inconsistency
 - **Decision**: Fix
-- **Reasoning**: The component already uses `var(--gt-accent)` for background and `var(--gt-marker-glow)` for box-shadow, so the hardcoded `rgba(255, 255, 255, 0.9)` border is a genuine inconsistency. In dark mode the white border may be fine, but in light mode a white border on a potentially light background is questionable. Adding `--gt-marker-border` to `_theme.scss` is a small, low-risk change that completes the design token pattern already in use. No new complexity introduced.
+- **Reasoning**: Trivial to fix while making the other changes, and it brings the file in line with the formatting convention used in every other test file in the project. Will address during refactor.
 
-#### architect-reviewer — Glow color raw rgba values copy-pasted in _theme.scss
+#### architect-reviewer — Test duplicates homepage-to-Learn navigation
 - **Decision**: Fix
-- **Reasoning**: The existing pattern in `_theme.scss` is clear: raw color values live in `_variables.scss` as SCSS variables (e.g., `$card-shadow`, `$card-shadow-dark`), and `_theme.scss` references them. The `--gt-marker-glow` values bypass this pattern by inlining raw `rgba()` values directly. This is a real consistency issue and easy to fix by adding `$marker-glow` and `$marker-glow-dark` variables. Low risk, no new complexity.
+- **Reasoning**: This is a valid Medium finding. The test is titled "navigates from Learn page to Fretboard Flash" but it starts at `/` and clicks through to `/learn`, which is the exact journey already covered by both `navigation.spec.ts` (line 19: click Learn link, assert `/learn` URL) and `homepage.spec.ts` (line 26-27: click CTA, assert `/learn` URL). Starting at `page.goto('/learn')` makes the test faster, more focused on its actual subject, and eliminates redundant coverage. This directly aligns with the project guideline "One e2e per user journey, not per page."
+
+#### architect-reviewer — Redundant destination page assertions
+- **Decision**: Fix
+- **Reasoning**: This is a valid Medium finding. After navigating to `/learn/fretboard-flash`, the test asserts visibility of `fretboard-flash-page`, `start-button`, and `fretboard-wrapper`. The theme test (`fretboard-flash-theme.spec.ts`) already thoroughly verifies `fretboard-flash-page` and `start-button` visibility (lines 7-8, 18-19). A navigation journey test should confirm arrival (URL check + one sentinel element) and stop there. Asserting detailed page content couples this test to the destination page's internal structure, making it brittle and duplicative. The fix is to keep only `toHaveURL` and the `fretboard-flash-page` sentinel assertion, removing `start-button` and `fretboard-wrapper` checks.
 
 #### Low-severity / Nitpick findings
-- **codestyle-reviewer — Blank lines between keyframe selectors**: Will fix. The existing `_animations.scss` uses no blank lines between keyframe selectors. Removing the blank lines in the component SCSS is a trivial consistency fix.
-- **codestyle-reviewer — Test helper name `collectAllCssRules()`**: Will not fix. The name is clear enough in context and renaming it adds no meaningful value. The function is private to the test file.
-- **codestyle-reviewer — Test description wording**: Will not fix. The current wording is understandable. Subjective preference.
-- **performance-reviewer — Signal read 3 times in template**: Will fix. Using `@let` to cache the signal value is a clean one-liner improvement that follows Angular best practices and avoids redundant signal reads.
-- **performance-reviewer — Missing explicit opacity at 70% keyframe**: Will not fix. The browser correctly interpolates `opacity` between 0% and 100% keyframes. Adding it would be purely cosmetic documentation in CSS, not a correctness issue.
-- **performance-reviewer — `collectAllCssRules()` scans all stylesheets without caching**: Will not fix. This is a test helper that runs in a test environment with minimal stylesheets. Optimizing test utility performance is unnecessary overhead.
-- **architect-reviewer — Animation placement inconsistency**: Will not fix. `fadeInUp` is a global reusable animation used across multiple components. `note-marker-appear` is component-specific (it includes `translate(-50%, -50%)` offsets tied to the marker's positioning). Keeping component-specific animations co-located with the component is the correct scoping decision. No policy documentation needed at this scale.
+- The `learn-page.spec.ts` deletion acknowledgment (architect-reviewer, Low) requires no action. The codestyle line-break finding will be addressed as part of the refactor since the cost is zero.
 
 ## Re-Review (Cycle 2)
-- **codestyle-reviewer**: PASS — blank lines between keyframe selectors removed correctly
+- **codestyle-reviewer**: PASS — function signature reformatted to single line
 - **security-reviewer**: PASS — no security changes to re-evaluate
-- **performance-reviewer**: PASS — `@let n = note()` caching applied correctly
-- **architect-reviewer**: FAIL — `--gt-marker-border` uses raw `rgba()` in `_theme.scss` instead of a SCSS variable in `_variables.scss`. The glow fix (`$marker-glow`) was applied correctly, but the border value was not extracted to a variable following the same pattern.
+- **performance-reviewer**: PASS — no performance changes to re-evaluate
+- **architect-reviewer**: PASS — test now starts at `/learn`, redundant destination assertions removed, only sentinel element retained
 
 ### Engineer Assessment (Cycle 2)
-### Overall Decision: REFACTOR
-### Reasoning per finding
-
-#### architect-reviewer — Border value not extracted to SCSS variable
-- **Decision**: Fix
-- **Reasoning**: The original finding asked for a CSS custom property (done) but the pattern established by the glow fix in this same PR is to also back it with a SCSS variable in `_variables.scss`. The `$marker-glow` / `$marker-glow-dark` pattern was correctly applied for the glow, but the border was left as raw `rgba()` in `_theme.scss`. This is a minor inconsistency within the same PR. Adding `$marker-border` to `_variables.scss` and referencing it is trivial.
-
-## Re-Review (Cycle 3)
-- **architect-reviewer**: PASS — `$marker-border` variable added to `_variables.scss`, both theme blocks in `_theme.scss` now reference `#{gt.$marker-border}`. No raw `rgba()` literal remains.
-
-### Engineer Assessment (Cycle 3)
 ### Overall Decision: ACCEPT

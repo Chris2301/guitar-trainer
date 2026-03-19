@@ -32,6 +32,6 @@ The WHAT
 - [x] 5.3 Visual styling of note marker (color, size, animation)
 
 ## 6. E2E Tests
-- [ ] 6.1 Playwright test: navigation from Learn page to Fretboard Flash
+- [x] 6.1 Playwright test: navigation from Learn page to Fretboard Flash
 - [ ] 6.2 Playwright test: game loop — note appears, answer appears on fretboard, next note
 - [ ] 6.3 Playwright test: progression — pool expands after open notes
