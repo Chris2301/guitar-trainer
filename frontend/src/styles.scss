@@ -1,3 +1,8 @@
 @use '@taiga-ui/core/styles/taiga-ui-local';
+@use 'app/theme/theme';
+@use 'app/theme/variables' as gt;
 
-/* You can add global styles to this file, and also import other style files */
+body {
+  margin: 0;
+  font-family: gt.$font-family;
+}
