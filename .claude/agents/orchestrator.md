@@ -58,6 +58,7 @@ Do NOT read the full codebase. Do NOT summarize. The sub-agent will read what it
   - `openspec/reference/` (relevant technology guides)
   - `CLAUDE.md` (project conventions)
 - Instruction: "Read these files yourself before writing any code"
+- **Completeness check instruction**: "Before reporting done, verify your work is complete and consistent. Specifically: if you extracted/renamed/moved things, did you get ALL of them? If you created a config file, did you wire it into every place that references it (e.g. tsconfig references, angular.json, imports)? Do a final grep/check to confirm nothing was missed."
 - If this is a RETRY after review feedback: include the content of `<FEEDBACK_FILE>` and instruct the agent to address only the findings marked as "Fix" in the engineer assessment
 
 Do NOT implement anything yourself. You are the orchestrator.
@@ -71,6 +72,7 @@ After the implementation sub-agent completes:
 3. Launch ALL reviewer agents IN PARALLEL using the Agent tool
    - Each reviewer gets: the git diff output, the task description, and access to read the changed files
    - Each reviewer returns their findings in their output
+   - **On re-reviews (cycle 2+)**: include the previous cycle's findings in the prompt and instruct reviewers: "This is a re-review. Only evaluate whether the fixes from the previous cycle were applied correctly. Do NOT raise new findings that you did not flag in the previous cycle — those should have been caught the first time. If you see something new that is Critical severity, you may flag it, but anything below Critical that wasn't in your previous review is out of scope."
 4. Collect ALL reviewer feedback and write it to `<FEEDBACK_FILE>`
    Use this format:
    ```markdown
@@ -109,6 +111,8 @@ After the reviewers complete and the report is written:
    - Brief summary of which low-severity findings will be addressed (if any) and why
    ```
 5. IMPORTANT: The implementation sub-agent must be honest and pragmatic. Do not blindly accept all findings, and do not blindly reject them either. The goal is a reasoned trade-off.
+6. **Severity threshold**: If ALL findings in the review are Low severity or Nitpick, the Engineer Assessment MUST be ACCEPT. Low-severity findings should be noted but do not justify a full rework cycle. Only Medium+ findings can trigger REFACTOR.
+7. **Contradictory findings**: If a reviewer contradicts guidance from a previous cycle (e.g. "move X to dependencies" then "move X back to devDependencies"), the engineer should note the contradiction, keep the original decision, and mark the contradictory finding as "Accept — contradicts previous cycle consensus".
 
 ### Review loop
 - If the Engineer Assessment is REFACTOR:

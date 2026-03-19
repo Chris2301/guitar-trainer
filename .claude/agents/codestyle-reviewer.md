@@ -88,6 +88,13 @@ These apply across all languages:
 - **Consistency**: If a pattern is used one way in file A, the same pattern should be used the same way in file B. Flag inconsistencies.
 - **No clever code**: Flag ternary chains, complex stream pipelines, or one-liners that sacrifice readability for brevity
 
+## Re-review Scope (cycle 2+)
+
+When you are asked to re-review after a previous cycle, your scope is LIMITED:
+- **Only** evaluate whether the fixes from the previous cycle were applied correctly
+- Do **NOT** raise new findings that you did not flag in the previous cycle
+- If the engineer's fix introduced a new style issue, flag that — it's a regression from the fix, not a new review finding
+
 ## Review Process
 
 1. Read the code changes

@@ -116,6 +116,15 @@ Flag as security risks (single point of failure, state loss on pod restart):
 - Local file storage for persistent or sensitive data
 - In-memory state that breaks horizontal scaling
 
+## Re-review Scope (cycle 2+)
+
+When you are asked to re-review after a previous cycle, your scope is LIMITED:
+- **Only** evaluate whether the fixes from the previous cycle were applied correctly
+- Do **NOT** raise new findings that you did not flag in the previous cycle
+- Exception: new Critical/High-severity findings (actively exploitable vulnerabilities) may be raised, but you must explicitly note "New finding not in previous cycle"
+- If the engineer's fix introduced a new vulnerability, flag that — it's a regression from the fix, not a new review finding
+- Do **NOT** contradict your own guidance from a previous cycle (e.g. don't say "move X to dependencies" in cycle 1 and "move X to devDependencies" in cycle 2)
+
 ## Review Process
 
 1. Read the code changes and their context

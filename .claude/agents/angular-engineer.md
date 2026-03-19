@@ -61,20 +61,29 @@ After the unit-level TDD cycle is complete for the feature:
 
 ## Test Guidelines
 
+### Preventing Test Bloat
+- **Test behavior, not existence**: never write tests that only check something exists ("should create the component", "should contain a router-outlet"). Test what it *does*.
+- **Delete redundant tests**: after implementing a feature, check if earlier tests are now implicitly covered. A journey test that navigates via `/` makes a "homepage loads" smoke test redundant — remove the smoke test.
+- **No framework-verification tests**: don't test that Angular renders a component or that Taiga UI wraps content in `tui-root`. Trust the framework.
+- **One e2e per user journey, not per page**: "user opens app → navigates to Learn → completes exercise → sees result" replaces separate tests for homepage, learn page, and quiz page.
+- **Unit tests only for real logic**: services, stores, pipes, guards with actual business rules. Not for template bindings or structural boilerplate.
+- **Don't e2e what a unit test covers**: theme toggle logic → unit test. Multi-page navigation flow → e2e.
+
 ### Unit Tests
 - Use Angular's default test framework
-- Test at logical code boundaries: components, services, signal stores, pipes, guards
+- Test at logical code boundaries: services, signal stores, pipes, guards
 - Test business rules from the spec with concrete, realistic examples
 - Test edge cases and boundary conditions
 - Test signal reactivity: verify computed signals update when source signals change
 - Use descriptive test names: `should display product list when products are loaded`
 
 ### E2E Tests (Playwright)
-- Test the full user flow as a user would experience it
+- Test complete user journeys, not individual pages
 - Write tests that are meaningful to watch during a demo playback
 - Use descriptive test names that read like user stories
 - Verify visual state: elements visible, correct text, navigation works
 - Test error states: what does the user see when something fails?
+- Organize by journey: `e2e/journeys/learn-fretboard.spec.ts`, not `e2e/pages/homepage.spec.ts`
 
 ## Styling Conventions
 
