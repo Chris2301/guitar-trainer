@@ -6,7 +6,7 @@ The WHAT
 ## 1. Homepage
 - [x] 1.1 Write Playwright test: homepage shows hero section with tagline, feature highlights and CTA
 - [x] 1.2 Create HomeComponent with hero section (free, ad-free, gamified guitar training)
-- [ ] 1.3 Feature highlights section (overview of what the app offers)
+- [x] 1.3 Feature highlights section (overview of what the app offers)
 - [ ] 1.4 Call-to-action button to learn page
 - [ ] 1.5 Apply styling: bunny.net-inspired color palette, typography, spacing
 

@@ -21,12 +21,37 @@ describe('HomeComponent', () => {
     expect(text).toContain('guitar');
   });
 
-  it('should display at least one feature item', () => {
+  it('should display four feature highlights covering fretboard, quiz, warm-up and progression', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
 
     const items = fixture.nativeElement.querySelectorAll('[data-testid="feature-item"]');
-    expect(items.length).toBeGreaterThan(0);
+    expect(items.length).toBe(4);
+
+    const allText = Array.from(items)
+      .map((el: any) => el.textContent.toLowerCase())
+      .join(' ');
+
+    expect(allText).toContain('fretboard');
+    expect(allText).toContain('quiz');
+    expect(allText).toContain('warm-up');
+    expect(allText).toContain('progress');
+  });
+
+  it('should display a title and description for each feature highlight', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+
+    const items = fixture.nativeElement.querySelectorAll('[data-testid="feature-item"]');
+
+    items.forEach((item: HTMLElement) => {
+      const title = item.querySelector('.features__title');
+      const description = item.querySelector('.features__description');
+      expect(title).toBeTruthy();
+      expect(title!.textContent!.trim().length).toBeGreaterThan(0);
+      expect(description).toBeTruthy();
+      expect(description!.textContent!.trim().length).toBeGreaterThan(0);
+    });
   });
 
   it('should have a CTA link to the learn page with "Start Learning" text using Taiga UI button', () => {
