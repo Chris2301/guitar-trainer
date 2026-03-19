@@ -15,7 +15,7 @@ The WHAT
 - [x] 2.2 Create LearnComponent with placeholder text and structure for future training exercises
 
 ## 3. Navigation and Layout
-- [ ] 3.1 Write Playwright test: navigation between home and learn works, header visible on both pages
+- [x] 3.1 Write Playwright test: navigation between home and learn works, header visible on both pages
 - [ ] 3.2 Configure routing (`/` → home, `/learn` → learn)
 - [ ] 3.3 Shared header with navigation links, theme toggle and language selector
 
