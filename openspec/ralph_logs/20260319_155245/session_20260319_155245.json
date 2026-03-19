@@ -106,6 +106,19 @@
       },
       "cost_usd": 1.0053630499999997,
       "completed": true
+    },
+    {
+      "iteration": 9,
+      "task_assigned": "- [ ] 3.2 Configure routing (`/` → home, `/learn` → learn)\n",
+      "duration_seconds": 586,
+      "tokens": {
+        "input": 33,
+        "output": 11085,
+        "cache_read": 950199,
+        "total": 961317
+      },
+      "cost_usd": 2.1626136999999996,
+      "completed": true
     }
   ]
 }
