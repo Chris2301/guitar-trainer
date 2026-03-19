@@ -1,19 +1,8 @@
 @use '../theme/variables' as gt;
+@use '../theme/animations';
 
 :host {
   display: block;
-}
-
-// Fade-in animation used by hero, feature items, and CTA sections
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(1.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 // Hero section — full-width gradient background

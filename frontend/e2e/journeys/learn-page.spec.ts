@@ -7,7 +7,7 @@ test.describe('Learn Page', () => {
     const learnSection = page.getByTestId('learn-section');
     await expect(learnSection).toBeVisible();
 
-    const heading = learnSection.locator('h1');
+    const heading = learnSection.locator('h2');
     await expect(heading).toBeVisible();
     await expect(heading).toContainText(/learn/i);
 

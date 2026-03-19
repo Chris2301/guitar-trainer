@@ -12,7 +12,7 @@ The WHAT
 
 ## 2. Learn Page
 - [x] 2.1 Write Playwright test: learn page shows placeholder content with correct structure
-- [ ] 2.2 Create LearnComponent with placeholder text and structure for future training exercises
+- [x] 2.2 Create LearnComponent with placeholder text and structure for future training exercises
 
 ## 3. Navigation and Layout
 - [ ] 3.1 Write Playwright test: navigation between home and learn works, header visible on both pages
