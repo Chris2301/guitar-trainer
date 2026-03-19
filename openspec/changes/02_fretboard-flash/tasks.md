@@ -17,7 +17,7 @@ The WHAT
 
 ## 3. Game Loop
 - [x] 3.1 Implement game state machine: `SHOW_NOTE` → `SHOW_ANSWER` → next note
-- [ ] 3.2 Timer logic: 5 seconds show note, 3 seconds show answer
+- [x] 3.2 Timer logic: 5 seconds show note, 3 seconds show answer
 - [ ] 3.3 Integration with `ProgressionService` — request next random note
 - [ ] 3.4 `FretboardFlashPageComponent` — composition of note display, fretboard and game controls
 

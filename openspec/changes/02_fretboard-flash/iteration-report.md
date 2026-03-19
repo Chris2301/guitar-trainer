@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 3.1 Implement game state machine: `SHOW_NOTE` → `SHOW_ANSWER` → next note
+**From tasks.md:** 3.2 Timer logic: 5 seconds show note, 3 seconds show answer
 
 ## Checklist
 ### 1. Understanding
@@ -8,7 +8,7 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Created a dedicated `GameStateService` using Angular Signals with three states (`IDLE`, `SHOW_NOTE`, `SHOW_ANSWER`). The service exposes readonly signals for `state` and `currentNote`, with guarded transition methods (`start`, `showAnswer`, `nextNote`, `stop`). Delegates note selection to `ProgressionService.drawNote()`. Updated `design.md` to reflect the service-based approach. Also unified `@Injectable()` strategy across all feature services and added progression reset on stop.
+**Approach:** Added automatic timer-based state transitions to the existing GameStateService using `setTimeout`. SHOW_NOTE auto-transitions to SHOW_ANSWER after 5 seconds, SHOW_ANSWER auto-transitions to next SHOW_NOTE after 3 seconds. Timers are cancelled on stop(), manual transitions, and service destruction (OnDestroy). Exported duration constants for testability.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
@@ -20,8 +20,8 @@
 ### 3. Reviewers
 - [x] `codestyle-reviewer` — passed
 - [x] `security-reviewer` — passed
-- [x] `performance-reviewer` — passed
-- [x] `architect-reviewer` — cycle 1: 2 Medium findings (design doc deviation, mixed providedIn strategy), 2 Low (stop not resetting progression, weak test assertion); cycle 2: all fixes verified, passed
+- [x] `performance-reviewer` — cycle 1: warning for missing OnDestroy (fixed), NgZone concern accepted (app is zoneless); cycle 2: passed
+- [x] `architect-reviewer` — cycle 1: warnings for missing OnDestroy (fixed), NgZone (accepted, zoneless), Vitest API (accepted, confirmed runner); cycle 2: passed
 
 ### 4. Engineer Assessment
 - [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1) → ACCEPT (cycle 2)
@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** ea844c4 feat: add GameStateService with signal-based state machine for fretboard flash
+**Commit:** (pending)
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED

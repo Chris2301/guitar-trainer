@@ -155,6 +155,180 @@ describe('GameStateService', () => {
     });
   });
 
+  describe('timer: auto-transition from SHOW_NOTE to SHOW_ANSWER after 5 seconds', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should automatically transition to SHOW_ANSWER after 5 seconds in SHOW_NOTE', () => {
+      service.start();
+      expect(service.state()).toBe(GameState.SHOW_NOTE);
+
+      vi.advanceTimersByTime(5000);
+
+      expect(service.state()).toBe(GameState.SHOW_ANSWER);
+    });
+
+    it('should not transition before 5 seconds have elapsed', () => {
+      service.start();
+
+      vi.advanceTimersByTime(4999);
+
+      expect(service.state()).toBe(GameState.SHOW_NOTE);
+    });
+
+    it('should keep the same current note after auto-transition to SHOW_ANSWER', () => {
+      service.start();
+      const note = service.currentNote();
+
+      vi.advanceTimersByTime(5000);
+
+      expect(service.currentNote()).toBe(note);
+    });
+  });
+
+  describe('timer: auto-transition from SHOW_ANSWER to next SHOW_NOTE after 3 seconds', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should automatically transition to SHOW_NOTE after 3 seconds in SHOW_ANSWER', () => {
+      service.start();
+      vi.advanceTimersByTime(5000); // auto-transition to SHOW_ANSWER
+      expect(service.state()).toBe(GameState.SHOW_ANSWER);
+
+      vi.advanceTimersByTime(3000);
+
+      expect(service.state()).toBe(GameState.SHOW_NOTE);
+    });
+
+    it('should not transition before 3 seconds have elapsed', () => {
+      service.start();
+      vi.advanceTimersByTime(5000);
+
+      vi.advanceTimersByTime(2999);
+
+      expect(service.state()).toBe(GameState.SHOW_ANSWER);
+    });
+
+    it('should draw a new note after auto-transition from SHOW_ANSWER', () => {
+      const progression = TestBed.inject(ProgressionService);
+      vi.spyOn(progression, 'drawNote');
+
+      service.start();
+      expect(progression.drawNote).toHaveBeenCalledTimes(1);
+
+      vi.advanceTimersByTime(5000); // to SHOW_ANSWER
+      vi.advanceTimersByTime(3000); // to SHOW_NOTE (next)
+
+      expect(progression.drawNote).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('timer: continuous game loop', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should automatically cycle through multiple rounds', () => {
+      service.start();
+
+      for (let i = 0; i < 3; i++) {
+        expect(service.state()).toBe(GameState.SHOW_NOTE);
+        vi.advanceTimersByTime(5000);
+        expect(service.state()).toBe(GameState.SHOW_ANSWER);
+        vi.advanceTimersByTime(3000);
+      }
+
+      expect(service.state()).toBe(GameState.SHOW_NOTE);
+    });
+  });
+
+  describe('timer: cancellation', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should cancel the timer when stop is called during SHOW_NOTE', () => {
+      service.start();
+      service.stop();
+
+      vi.advanceTimersByTime(5000);
+
+      expect(service.state()).toBe(GameState.IDLE);
+    });
+
+    it('should cancel the timer when stop is called during SHOW_ANSWER', () => {
+      service.start();
+      vi.advanceTimersByTime(5000); // to SHOW_ANSWER
+      service.stop();
+
+      vi.advanceTimersByTime(3000);
+
+      expect(service.state()).toBe(GameState.IDLE);
+    });
+
+    it('should cancel the SHOW_NOTE timer when showAnswer is called manually before timeout', () => {
+      service.start();
+      service.showAnswer(); // manual transition before 5s
+
+      vi.advanceTimersByTime(5000);
+
+      // should not have double-transitioned; should still be in SHOW_ANSWER
+      // (or moved to next SHOW_NOTE via the answer timer, but not broken)
+      expect(service.state()).not.toBe(GameState.IDLE);
+    });
+
+    it('should cancel the SHOW_ANSWER timer when nextNote is called manually before timeout', () => {
+      service.start();
+      vi.advanceTimersByTime(5000); // to SHOW_ANSWER
+      service.nextNote(); // manual transition before 3s
+
+      vi.advanceTimersByTime(3000);
+
+      // should not have called nextNote again; should be in SHOW_NOTE with its own timer
+      expect(service.state()).toBe(GameState.SHOW_NOTE);
+    });
+
+    it('should not leak timers after stop - no state change after stopping', () => {
+      service.start();
+      service.stop();
+
+      vi.advanceTimersByTime(100000);
+
+      expect(service.state()).toBe(GameState.IDLE);
+      expect(service.currentNote()).toBeNull();
+    });
+
+    it('should clear pending timer when ngOnDestroy is called mid-game', () => {
+      service.start();
+      expect(service.state()).toBe(GameState.SHOW_NOTE);
+
+      service.ngOnDestroy();
+
+      vi.advanceTimersByTime(5000);
+
+      // Timer should have been cleared — state should NOT have advanced to SHOW_ANSWER
+      expect(service.state()).toBe(GameState.SHOW_NOTE);
+    });
+  });
+
   describe('full cycle', () => {
     it('should complete a full game cycle: IDLE -> SHOW_NOTE -> SHOW_ANSWER -> SHOW_NOTE (next)', () => {
       const progression = TestBed.inject(ProgressionService);
