@@ -132,6 +132,19 @@
       },
       "cost_usd": 3.708801700000001,
       "completed": true
+    },
+    {
+      "iteration": 11,
+      "task_assigned": "- [ ] 4.1 Write Playwright test: theme toggle switches between light and dark\n",
+      "duration_seconds": 389,
+      "tokens": {
+        "input": 16,
+        "output": 3680,
+        "cache_read": 473941,
+        "total": 477637
+      },
+      "cost_usd": 1.49912205,
+      "completed": true
     }
   ]
 }
