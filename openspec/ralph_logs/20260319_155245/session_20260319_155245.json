@@ -132,6 +132,19 @@
       },
       "cost_usd": 2.557659750000001,
       "completed": true
+    },
+    {
+      "iteration": 11,
+      "task_assigned": "- [ ] 3.3 Integration with `ProgressionService` — request next random note\n",
+      "duration_seconds": 666,
+      "tokens": {
+        "input": 12,
+        "output": 2480,
+        "cache_read": 551633,
+        "total": 554125
+      },
+      "cost_usd": 3.5607856,
+      "completed": true
     }
   ]
 }
