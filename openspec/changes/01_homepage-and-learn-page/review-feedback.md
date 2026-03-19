@@ -284,3 +284,180 @@
 - **Hardcoded English string in test** (architect-reviewer, Suggestion): Accept. Tests run against the source locale (en) by design. This is standard practice for Angular i18n testing.
 - **No xliffmerge tooling** (architect-reviewer, Suggestion): Defer. Valid enhancement but out of scope -- only relevant when the number of translatable strings grows significantly.
 - **Array formatting in JSON configs** (codestyle-reviewer, Nitpick): Accept. No functional impact.
+
+---
+
+# Review Feedback (Cycle 5 — Task 1.5: Playwright setup)
+## Status: FAIL
+
+## Findings
+
+### codestyle-reviewer
+- **Severity**: Nitpick
+- **Finding**: Test describe block naming style ("Smoke test - application loads") doesn't match existing project patterns (title case like "Taiga UI Configuration", "Theme Integration")
+- **Fix**: Rename to "Application Smoke Test" or similar title-case format
+
+### security-reviewer
+- **Severity**: Critical
+- **Finding**: Playwright UI bound to `0.0.0.0` via `--ui-host=0.0.0.0` in `e2e:ui` script. On a VPS with a public IP, this exposes the Playwright UI server on a publicly reachable port, giving remote operators full browser control.
+- **Fix**: Remove `--ui-host=0.0.0.0`. Use SSH tunnel instead: `ssh -L 9323:127.0.0.1:9323 user@vps`. The default `127.0.0.1` binding restricts to localhost.
+
+- **Severity**: High
+- **Finding**: Full `process.env` spread into browser child process via `buildLaunchEnv()`. Leaks all environment variables (potentially secrets) to Chromium subprocess.
+- **Fix**: Pass only `LD_LIBRARY_PATH` instead of spreading entire `process.env`. Playwright merges partial env with inherited environment automatically.
+
+- **Severity**: Medium
+- **Finding**: Unpinned Playwright version `^1.58.2` allows silent minor upgrades including bundled Chromium.
+- **Fix**: Pin exact version or ensure `package-lock.json` is committed and `npm ci` used in CI.
+
+- **Severity**: Low
+- **Finding**: HTML report artifacts may be world-readable on shared VPS filesystem.
+- **Fix**: Confirm restrictive filesystem permissions on report directory.
+
+### performance-reviewer
+- **Severity**: Warning
+- **Finding**: Three smoke tests each call `page.goto('/')` independently, causing three full Angular bootstrap cycles where one would suffice.
+- **Fix**: Consolidate into a single test with multiple assertions after one navigation.
+
+- **Severity**: Warning
+- **Finding**: `process.env` spread copies entire environment into browser process — unnecessary memory overhead.
+- **Fix**: Pass only `LD_LIBRARY_PATH` (overlaps with security finding).
+
+- **Severity**: Info
+- **Finding**: `ng serve` as webServer command includes watch/HMR infrastructure unnecessary for CI.
+- **Fix**: Consider `ng build` + static server for CI (future improvement).
+
+- **Severity**: Info
+- **Finding**: HTML reporter unconditionally generates report on every run including local.
+- **Fix**: Use `process.env['CI'] ? 'html' : 'dot'` for conditional reporter.
+
+### architect-reviewer
+- **Severity**: Warning
+- **Finding**: VPS-specific `LD_LIBRARY_PATH` logic embedded in shared config — mixes two concerns (test config + host accommodation).
+- **Fix**: Remove `buildLaunchEnv` from shared config. Handle via shell/`.bashrc` on VPS, or isolate behind env var like `PLAYWRIGHT_EXTRA_LD_PATH`.
+
+- **Severity**: Warning
+- **Finding**: No dedicated `tsconfig.json` for `e2e/` directory. Playwright types not explicitly included in any tsconfig chain.
+- **Fix**: Add `frontend/e2e/tsconfig.json` extending root tsconfig with `"types": ["@playwright/test"]` and add reference in root tsconfig.
+
+- **Severity**: Suggestion
+- **Finding**: `e2e:ui` binds to `0.0.0.0` unconditionally (overlaps with security finding).
+- **Fix**: Same as security finding — use SSH tunnel instead.
+
+## Engineer Assessment (Cycle 5 — Task 1.5)
+### Overall Decision: REFACTOR
+### Reasoning per finding
+#### security-reviewer — Playwright UI bound to 0.0.0.0 exposing port publicly
+- **Decision**: Fix
+- **Reasoning**: This is a real and serious risk. The VPS has a public IP, and binding the Playwright UI server to `0.0.0.0` makes it reachable from the internet without authentication. Anyone who discovers the port gets full browser control. The design document explicitly states that VSCode Remote SSH forwards the port, which means SSH tunneling is already the intended access mechanism. Removing `--ui-host=0.0.0.0` and relying on the default `127.0.0.1` binding is a one-token change that eliminates the attack surface entirely. SSH port forwarding works with localhost binding -- the `0.0.0.0` was unnecessary from the start.
+
+#### security-reviewer — Full process.env spread into browser child process
+- **Decision**: Fix
+- **Reasoning**: Spreading the entire `process.env` into the Chromium subprocess is a genuine security issue. Any secrets in the shell environment (API keys, tokens, database credentials) get passed to the browser process. The fix is straightforward: only pass `LD_LIBRARY_PATH` when it needs augmenting. Playwright inherits the parent process environment by default when `env` is `undefined`, so the current spread is also redundant -- it copies what would already be inherited, but makes it explicit (and therefore frozen at config-load time). Changing `buildLaunchEnv` to return only `{ LD_LIBRARY_PATH: ... }` when the extra path exists, and `undefined` otherwise, solves both the security concern and the architect-reviewer's concern about mixing VPS-specific logic into shared config. This also addresses the performance-reviewer's overlapping finding about unnecessary memory overhead.
+
+#### security-reviewer — Unpinned Playwright version ^1.58.2
+- **Decision**: Accept
+- **Reasoning**: The caret range `^1.58.2` is standard for devDependencies in the JavaScript ecosystem. The real protection comes from committing `package-lock.json` and using `npm ci` in CI, which is standard practice. Pinning the exact version in `package.json` creates maintenance burden (manual bumps for every patch) without meaningful benefit when the lockfile is committed. Verify that `package-lock.json` is committed -- if it is, this finding is a non-issue.
+
+#### performance-reviewer — Three smoke tests each navigate independently
+- **Decision**: Accept
+- **Reasoning**: The three tests verify three distinct concerns: page title, app-root presence, and tui-root presence. Playwright creates isolated browser contexts per test by design -- this is a feature, not a problem. Consolidating into one test with multiple assertions would couple unrelated checks and produce less informative failure messages. The overhead of three Angular bootstraps during local development is negligible (sub-second each). In CI, the `webServer` config keeps the server running across all tests, so there is no repeated build. The "three full Angular bootstrap cycles" framing overstates the cost.
+
+#### architect-reviewer — VPS-specific LD_LIBRARY_PATH logic in shared config
+- **Decision**: Fix
+- **Reasoning**: This will be addressed as part of the security fix above. The refactored `buildLaunchEnv` will only return the minimal `LD_LIBRARY_PATH` override when the VPS-specific path exists, and `undefined` otherwise. This keeps the VPS accommodation contained to a small, clearly commented block rather than spreading the entire environment. An alternative approach of handling this purely in `.bashrc` would be cleaner architecturally, but the current approach with the `existsSync` guard is pragmatic -- it works on both VPS and local machines without manual setup. The fix for the `process.env` spread already addresses the main concern here.
+
+#### architect-reviewer — No dedicated tsconfig.json for e2e/ directory
+- **Decision**: Fix
+- **Reasoning**: Without a dedicated `tsconfig.json`, the e2e directory relies on implicit TypeScript resolution. Adding `frontend/e2e/tsconfig.json` with `"types": ["@playwright/test"]` ensures proper type checking for Playwright tests and prevents potential conflicts with the Angular test types (Vitest/Jasmine). This is a small configuration file that follows standard Playwright project conventions and prevents type-related issues as more e2e tests are added.
+
+#### Low-severity / Nitpick findings
+- **Test describe block naming style** (codestyle-reviewer, Nitpick): Fix. The existing unit tests use title case ("Taiga UI Configuration", "Theme Integration"). Renaming to "Application Smoke Test" takes seconds and maintains consistency across the test suite.
+- **HTML report artifacts permissions** (security-reviewer, Low): Accept. The report directory is gitignored and local to the developer. Filesystem permissions on the VPS are an ops concern, not a Playwright config concern.
+- **ng serve includes watch/HMR for CI** (performance-reviewer, Info): Defer. Valid optimization but premature. The project has no CI pipeline yet. When CI is set up, this can be revisited.
+- **HTML reporter unconditionally generates report** (performance-reviewer, Info): Defer. Minor convenience improvement. The current behavior is acceptable -- developers can ignore the report locally. Can be added later when CI is configured.
+
+---
+
+# Review Feedback (Cycle 6 — Task 1.5: Playwright setup, post-refactor)
+## Status: PASS
+
+## Findings
+
+### codestyle-reviewer
+- No issues found
+
+### security-reviewer
+- **Severity**: Low
+- **Finding**: `package-lock.json` not committed (root `.gitignore` excludes it). Caret range on `@playwright/test` means fresh installs could pull different versions.
+- **Fix**: Commit `package-lock.json` or pin exact versions. Out of scope for this task — general project concern.
+
+- **Severity**: Low
+- **Finding**: HTML reporter generates reports with screenshots/traces that could be accessible if VPS has misconfigured static file serving.
+- **Fix**: Confirm `playwright-report/` is not served publicly. Already gitignored.
+
+- **Severity**: Low
+- **Finding**: `reuseExistingServer: !process.env['CI']` means local tests could run against wrong server instance.
+- **Fix**: Accepted Playwright trade-off for fast local iteration.
+
+### performance-reviewer
+- No issues found
+
+### architect-reviewer
+- **Severity**: Warning
+- **Finding**: `e2e/tsconfig.json` not added to `references` array in `frontend/tsconfig.json`. IDEs may not apply Playwright types when editing e2e files.
+- **Fix**: Add `{ "path": "./e2e/tsconfig.json" }` to references in `frontend/tsconfig.json`.
+
+- **Severity**: Warning
+- **Finding**: `process.env['HOME']` fallback to `''` at top level could cause false-positive `existsSync` match if `HOME` is unset (resolves relative to cwd).
+- **Fix**: Guard with null check — if `HOME` is not set, skip the path entirely.
+
+- **Severity**: Suggestion
+- **Finding**: `launchOptions.env` set to `undefined` vs omitting entirely — minor Playwright contract ambiguity.
+- **Fix**: Accept as-is; Playwright handles this gracefully.
+
+- **Severity**: Suggestion
+- **Finding**: Tests navigate to `/` independently — negligible overhead at current scale.
+- **Fix**: No action needed.
+
+## Engineer Assessment (Cycle 6 — Task 1.5)
+### Overall Decision: REFACTOR
+### Reasoning per finding
+#### architect-reviewer — e2e/tsconfig.json not added to references in frontend/tsconfig.json
+- **Decision**: Fix
+- **Reasoning**: The `e2e/tsconfig.json` was created in the previous cycle but was not wired into the root `frontend/tsconfig.json` references array. Currently the references only include `tsconfig.app.json` and `tsconfig.spec.json`. Without this reference, IDEs using TypeScript project references (which is how Angular projects are structured) will not apply the correct Playwright types when editing files in `e2e/`. This means developers may get false type errors or miss real ones in e2e test files. The fix is adding one line to the references array -- trivial effort, direct benefit for developer experience and type safety.
+
+#### architect-reviewer — process.env['HOME'] fallback to empty string causes false-positive existsSync
+- **Decision**: Fix
+- **Reasoning**: This is a real, if unlikely, bug. When `process.env['HOME']` is `undefined` (e.g., in some CI environments or containers running as non-login users), the nullish coalescing fallback to `''` means `resolve('', 'playwright-libs', 'lib')` resolves relative to `process.cwd()`. If a `playwright-libs/lib/` directory happens to exist in the working directory, `existsSync` returns `true` and an incorrect `LD_LIBRARY_PATH` is set. The fix is a simple null check: if `HOME` is not set, skip the path entirely and return `undefined` from `buildLaunchEnv`. One-line guard, eliminates a subtle edge case.
+
+#### Low-severity / Nitpick findings
+- **package-lock.json not committed** (security-reviewer, Low): Defer. The root `.gitignore` excluding `package-lock.json` is a project-level decision that predates this task. Changing the gitignore policy is out of scope for Playwright setup. This should be raised as a separate project hygiene concern.
+- **HTML reporter accessible on misconfigured VPS** (security-reviewer, Low): Accept. The report directory is already gitignored. VPS static file serving configuration is an ops concern unrelated to Playwright config. No change needed.
+- **reuseExistingServer could run against wrong server** (security-reviewer, Low): Accept. This is a standard Playwright pattern and the reviewer acknowledges it as an accepted trade-off. The behavior is intentional for fast local iteration.
+- **launchOptions.env set to undefined vs omitting** (architect-reviewer, Suggestion): Accept. Playwright handles `undefined` gracefully, and the current code is explicit about the intent -- `buildLaunchEnv()` returns `undefined` when no override is needed. No change warranted.
+- **Tests navigate to / independently** (architect-reviewer, Suggestion): Accept. The reviewer themselves says no action needed. Already discussed and accepted in Cycle 5.
+
+---
+
+# Review Feedback (Cycle 7 — Task 1.5: Playwright setup, final)
+## Status: PASS
+
+## Findings
+
+### codestyle-reviewer
+- No issues found
+
+### security-reviewer
+- No issues found
+
+### performance-reviewer
+- No issues found
+
+### architect-reviewer
+- No issues found
+
+## Engineer Assessment (Cycle 7 — Task 1.5)
+### Overall Decision: ACCEPT
+### Reasoning
+All previous findings have been addressed. The two fixes from Cycle 6 (tsconfig reference and HOME guard) were confirmed correct by all four reviewers. No new findings in any category.
