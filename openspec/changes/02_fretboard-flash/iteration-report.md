@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 1.4 Logic for pool expansion: track which notes have been shown, expand when all current pool notes have been seen at least once
+**From tasks.md:** 2.1 Create/obtain fretboard image (guitar neck, fret 1-15, 6 strings)
 
 ## Checklist
 ### 1. Understanding
@@ -8,29 +8,29 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Extended the existing `ProgressionService` to auto-track shown notes via `drawNote()` (renamed from `getRandomNote` to signal side effects). When all notes in the current pool have been seen at least once, `expandPool()` is triggered automatically. Added `hasBeenShown()` query method. At max fret (15), shown tracking resets so the game cycles indefinitely.
+**Approach:** Created a hand-crafted SVG fretboard image with 6 strings (varying thickness for realism), nut + 15 fret lines using the same positioning formula as `note-data.ts`, and standard fret markers (single dots at 3, 5, 7, 9, 15; double dot at 12). SVG uses a 1000x200 viewBox with wood-grain and metallic gradients. Placed in `public/images/` for static serving.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
 - [x] Implemented minimum code to pass
 - [x] All tests pass
 
-**Test file(s):** `frontend/src/app/learn/fretboard-flash/progression.service.spec.ts` (6 new tests, 23 total)
+**Test file(s):** `frontend/src/app/learn/fretboard-flash/fretboard-image.spec.ts` (7 tests validating SVG structure)
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — passed (no issues)
-- [x] `security-reviewer` — passed (no issues)
-- [x] `performance-reviewer` — passed (no issues)
-- [x] `architect-reviewer` — 2 Medium (rename method with side effect — fixed; misleading test title — fixed), 1 Low (expandPool asymmetry — accepted)
+- [x] `codestyle-reviewer` — passed, no issues
+- [x] `security-reviewer` — passed, no issues
+- [x] `performance-reviewer` — passed, no issues
+- [x] `architect-reviewer` — passed with warnings (spec placement, coordinate systems) — accepted as intentional design
 
 ### 4. Engineer Assessment
-- [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), PASS (cycle 2)
+- [x] Engineer reviewed findings — Decision: ACCEPT
 
 ### 5. Completion
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** 275ad3e feat: add shown-note tracking and auto-expansion to ProgressionService
+**Commit:** 32fc467 feat: add fretboard SVG image with 6 strings, 15 frets, and markers
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
