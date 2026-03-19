@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** (pending)
+**Commit:** b2db6c2 test: add playwright e2e test for learn to fretboard flash navigation
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
