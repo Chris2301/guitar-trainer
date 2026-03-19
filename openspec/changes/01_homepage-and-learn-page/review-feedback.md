@@ -1,93 +1,73 @@
-# Review Feedback — Cycle 3 (task 1.3)
-## Status: PASS
+# Review Feedback — Task 1.4 (CTA button to learn page)
+## Status: FAIL
 ## Findings
 
 ### codestyle-reviewer
 - **Severity**: Medium
-- **Finding**: Component file naming — `home.ts` and `learn.ts` lack `.component` suffix. However, the existing `app.ts` in the project also omits it, so this may be an intentional convention.
-- **Fix**: Clarify convention; if `app.ts` is the pattern, this is fine. If Angular standard is desired, rename to `home.component.ts`.
-
-- **Severity**: Medium
-- **Finding**: `home.ts` uses the deprecated `styleUrl` (singular) property instead of `styleUrls` (plural array) or the newer `styles` option.
-- **Fix**: Use `styleUrl: './home.scss'` (singular is valid in Angular v21 standalone) — verify it compiles correctly.
-
-- **Severity**: Low
-- **Finding**: LearnComponent uses inline template/styles while HomeComponent uses separate files — inconsistent pattern.
-- **Fix**: Acceptable for a placeholder, but document or standardize when the learn page is fleshed out.
-
-- **Severity**: Low
-- **Finding**: LearnComponent hardcodes `max-width: 1140px` instead of using theme variable `gt.$max-width`.
-- **Fix**: Extract to SCSS file using theme variable, or add TODO comment.
+- **Finding**: The `.cta [tuiButton]` attribute selector overrides all Taiga UI buttons within `.cta`, making `appearance="accent"` meaningless. If more buttons are added, they'll unintentionally inherit the orange gradient.
+- **Fix**: Target the specific CTA button using `[data-testid='cta-learn']` instead of `[tuiButton]` to scope the styling.
 
 ### security-reviewer
-No issues found
+No issues found.
 
 ### performance-reviewer
-No issues found
+No issues found.
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: No `i18n` attributes on user-visible text. Design doc mandates Angular i18n from day 1 with NL, DE, EN support.
-- **Fix**: Add `i18n` attributes to all user-facing elements (hero tagline, subtitle, feature titles/descriptions, CTA text).
-
-- **Severity**: Medium
-- **Finding**: CTA button uses hand-rolled `<a routerLink>` with custom SCSS instead of Taiga UI `tuiButton`. Design doc establishes Taiga UI as the component library.
-- **Fix**: Replace with `<a tuiButton appearance="primary" routerLink="/learn">`.
+- **Finding**: The SCSS block overrides Taiga UI's internal rendering (background, padding, font-size, color) with hardcoded values and `#fff`. The theme already maps `--tui-background-accent-2` to the orange palette when `appearance="accent"` is used. This hand-rolled gradient fights against Taiga UI's theming system and will break if Taiga UI changes its rendering.
+- **Fix**: Remove the `.cta [tuiButton]` block entirely. The `appearance="accent"` attribute already routes to the orange palette via `_theme.scss`. If a gradient is required, introduce it as a CSS custom property override in `_theme.scss`. Replace hardcoded `#fff` with a Taiga UI token.
 
 - **Severity**: Low
-- **Finding**: `data-testid="feature-item"` duplicated on three siblings — test-smell for future `querySelector` usage.
-- **Fix**: Use distinct testids or query by shared class/parent container.
-
-- **Severity**: Low
-- **Finding**: LearnComponent hardcodes `max-width: 1140px` instead of using theme variable.
-- **Fix**: Extract to SCSS file or add TODO comment.
+- **Finding**: Test assertion `expect(cta.getAttribute('href')).toBe('/learn')` is fragile — Angular's router resolves `href` only after router outlet and LocationStrategy run. With `provideRouter([])` (empty route table), resolution is non-deterministic.
+- **Fix**: Either add the `/learn` route to the test's `provideRouter()` config, or assert `routerLink` directly using Angular's `By.directive` approach.
 
 ## Engineer Assessment
-
 ### Overall Decision: REFACTOR
-
 ### Reasoning per finding
 
-#### codestyle-reviewer — Component file naming lacks `.component` suffix
-- **Decision**: Accept
-- **Reasoning**: The existing `app.ts` already establishes the convention of omitting the `.component` suffix. This is an intentional project convention, not an oversight. Angular CLI historically generated `.component.ts` but the framework does not require it. The project is consistent: `app.ts`, `home.ts`, `learn.ts` all follow the same pattern. Renaming now would either break the convention or require renaming all files including `app.ts`, which is out of scope for this task.
-
-#### codestyle-reviewer — `styleUrl` (singular) allegedly deprecated
-- **Decision**: Accept
-- **Reasoning**: This is a false positive. In Angular v17+ standalone components, `styleUrl` (singular string) is a valid and supported property — it is not deprecated. It was introduced specifically as a convenience for components with a single style file. The existing `app.ts` uses the same `styleUrl` pattern and the project compiles. The reviewer's own fix suggestion acknowledges this: "singular is valid in Angular v21 standalone". No change needed.
-
-#### architect-reviewer — No i18n attributes on user-visible text
-- **Decision**: Defer
-- **Reasoning**: The task list explicitly separates i18n into task 4.3: "Add translations for all visible text on homepage and learn page." The current task (1.2) is specifically about creating the HomeComponent with the hero section. Adding i18n attributes is planned work that belongs in a later task. Adding them now would mix concerns and make the current task harder to review. This is not a missing requirement — it is a sequenced requirement.
-
-#### architect-reviewer — CTA button uses hand-rolled styles instead of Taiga UI `tuiButton`
+#### codestyle-reviewer — `.cta [tuiButton]` selector too broad
 - **Decision**: Fix
-- **Reasoning**: This is a valid finding. The design doc explicitly states "Taiga UI for all UI components" and the system prompt says "use Taiga components before building custom ones." The CTA button is a standard button/link — exactly the kind of element Taiga UI provides out of the box. Using `tuiButton` gives consistent theming (light/dark mode), accessibility, and reduces custom SCSS. The custom gradient styling can be achieved through Taiga's appearance system or a custom appearance. This should be addressed in this task.
+- **Reasoning**: This is a valid finding. The `[tuiButton]` attribute selector inside `.cta` will match any Taiga UI button placed in that container in the future. While there is currently only one button, this is a maintainability trap that is trivial to fix now. The suggested fix of targeting `[data-testid='cta-learn']` is reasonable, though I would prefer a dedicated CSS class (e.g., `.cta__button`) over coupling styles to a test ID. Using `data-testid` for styling blurs the separation between testing hooks and styling hooks. This will be addressed together with the architect finding below, since both concern the same SCSS block.
+
+#### architect-reviewer — Hand-rolled gradient overrides Taiga UI theming
+- **Decision**: Fix
+- **Reasoning**: This is the most important finding and it is correct. Looking at `_theme.scss`, `--tui-background-accent-2` is already mapped to the orange palette (`$accent-orange`) for both light and dark themes. The `appearance="accent"` attribute on the Taiga button routes to this token. The current SCSS block on lines 60-70 of `home.scss` overrides background, color, padding, and font-size with hardcoded values, which:
+  1. Defeats the purpose of using `appearance="accent"` in the template.
+  2. Hardcodes `#fff` for text color, which will not adapt to dark theme if accent-2 ever uses a lighter background.
+  3. Overrides padding and font-size, which should be controlled by Taiga's button sizing system (the `size` input).
+  4. Will break silently if Taiga UI changes its internal DOM or CSS custom property structure.
+
+  The fix is to remove the entire `.cta [tuiButton]` block and rely on Taiga's built-in theming. If a gradient effect is truly needed for visual flair, it should be introduced as a custom property override in `_theme.scss` (e.g., overriding `--tui-background-accent-2` with a gradient), not as a component-level override. However, a solid orange button is likely sufficient for an MVP, so I will remove the overrides entirely and let Taiga handle it.
+
+#### architect-reviewer — Fragile `href` assertion in unit test
+- **Decision**: Fix
+- **Reasoning**: Although marked Low severity, this is worth fixing alongside the other changes since we are already touching this component. The test uses `provideRouter([])` with an empty route table, so the `href` attribute resolution depends on Angular's internal behavior for unknown routes. Asserting `routerLink` via the element attribute (`cta.getAttribute('routerLink')`) or adding a stub route to the test config is more robust. Since this is a small, low-risk change that improves test reliability, it makes sense to include it in the refactor pass.
 
 #### Low-severity / Nitpick findings
-- **LearnComponent inline vs. external files inconsistency** (codestyle-reviewer, Low): Accept. LearnComponent is a minimal placeholder with two lines of template and three lines of style. Inline is appropriate for this size. When the component grows in task 2.2 or later, it will naturally be extracted to separate files.
-- **LearnComponent hardcodes `max-width: 1140px`** (codestyle-reviewer + architect-reviewer, Low): Accept for now but worth fixing when LearnComponent is properly implemented in task 2.2. The HomeComponent already correctly uses `gt.$max-width`. Since LearnComponent is a placeholder that will be reworked soon, the inconsistency is short-lived.
-- **Duplicate `data-testid="feature-item"`** (architect-reviewer, Low): Accept. The current Playwright tests use `getByTestId('feature-highlights')` to scope to the parent container and then count child elements. The duplicate testid is not causing test fragility. If future tests need to target individual feature items, distinct testids can be added at that point.
+- The single Low finding (fragile href assertion) will be addressed as described above, since we are already modifying the component and test files for the Medium findings. The cost of fixing it is minimal and it prevents a flaky test.
 
 ---
 
-## Cycle 3 Review (task 1.3 — Feature highlights section)
+## Cycle 2 Review (after refactor)
 
 ### codestyle-reviewer
-No issues found
+No issues found. Previous finding (broad `[tuiButton]` selector) confirmed fixed — SCSS override block removed entirely.
 
 ### security-reviewer
-No issues found
+No issues found.
 
 ### performance-reviewer
-No issues found
+No issues found.
 
 ### architect-reviewer
-No issues found
+No issues found. Both previous findings confirmed fixed:
+1. Hand-rolled gradient SCSS block removed — `.cta` now contains only layout properties.
+2. Test assertion changed from `getAttribute('href')` to `getAttribute('routerLink')`.
 
-## Engineer Assessment (Cycle 3)
+## Engineer Assessment (Cycle 2)
 
 ### Overall Decision: ACCEPT
 
 ### Reasoning
-All four reviewers returned no issues. The changes are minimal, focused, and consistent with the existing codebase: updated feature card content to match the app's domain (fretboard, quiz, warm-up, progress), improved BEM naming in SCSS, and added specific unit tests. No refactoring needed.
+All four reviewers returned no issues on re-review. The two Medium findings and one Low finding from cycle 1 were all correctly addressed: the SCSS override block was removed entirely (letting Taiga UI's `appearance="accent"` handle theming), and the test assertion was changed to assert `routerLink` directly instead of relying on router `href` resolution. No refactoring needed.

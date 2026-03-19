@@ -54,14 +54,14 @@ describe('HomeComponent', () => {
     });
   });
 
-  it('should have a CTA link to the learn page with "Start Learning" text using Taiga UI button', () => {
+  it('should have a CTA link to /learn with "Start Learning" text using Taiga UI button', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
 
     const cta = fixture.nativeElement.querySelector('[data-testid="cta-learn"]');
     expect(cta).toBeTruthy();
     expect(cta.textContent.toLowerCase()).toContain('start learning');
-    expect(cta.getAttribute('href') || cta.getAttribute('routerLink')).toBeTruthy();
+    expect(cta.getAttribute('routerLink')).toBe('/learn');
     expect(cta.hasAttribute('tuiButton') || cta.getAttribute('tuiButton') !== null).toBe(true);
   });
 });
