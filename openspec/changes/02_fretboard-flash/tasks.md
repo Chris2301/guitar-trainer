@@ -28,7 +28,7 @@ The WHAT
 
 ## 5. Styling and Theming
 - [x] 5.1 Game page layout — note letter large and centered, fretboard below
-- [ ] 5.2 Light/dark theme support for all game components
+- [x] 5.2 Light/dark theme support for all game components
 - [ ] 5.3 Visual styling of note marker (color, size, animation)
 
 ## 6. E2E Tests

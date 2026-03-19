@@ -201,6 +201,38 @@ describe('FretboardFlashPageComponent', () => {
     });
   });
 
+  describe('theme support', () => {
+    it('should use CSS custom properties for page background and text color', () => {
+      fixture.detectChanges();
+
+      const page = nativeElement.querySelector('[data-testid="fretboard-flash-page"]') as HTMLElement;
+      expect(page).toBeTruthy();
+
+      // Verify the compiled stylesheet references CSS custom properties for theming.
+      // Angular compiles SCSS and attaches it to the component; we inspect the
+      // ownerDocument stylesheets to confirm no hardcoded color values are used.
+      const styleSheets = Array.from(nativeElement.ownerDocument.styleSheets);
+      const rules: string[] = [];
+      for (const sheet of styleSheets) {
+        try {
+          for (const rule of Array.from(sheet.cssRules)) {
+            if (rule.cssText.includes('fretboard-flash-page')) {
+              rules.push(rule.cssText);
+            }
+          }
+        } catch {
+          // cross-origin sheets may throw
+        }
+      }
+
+      const allRulesText = rules.join(' ');
+      // The page must use var(--gt-surface) for background, not a hardcoded hex color
+      expect(allRulesText).toContain('--gt-surface');
+      // The page must use var(--gt-text) for color, not a hardcoded hex color
+      expect(allRulesText).toContain('--gt-text');
+    });
+  });
+
   describe('note display updates', () => {
     it('should update the displayed note letter when the current note changes', () => {
       const firstNote: FretNote = { string: 6, fret: 0, note: 'E', x: 1.5, y: 92 };

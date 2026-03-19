@@ -28,7 +28,7 @@
   position: absolute;
   aspect-ratio: 1;
   border-radius: 50%;
-  background-color: #fd8d32;
+  background-color: var(--gt-accent);
   transform: translate(-50%, -50%);
   pointer-events: none;
 }

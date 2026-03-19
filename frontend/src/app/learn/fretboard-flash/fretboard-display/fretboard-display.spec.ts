@@ -119,6 +119,35 @@ describe('FretboardDisplayComponent', () => {
     expect(marker!.classList.contains('note-marker')).toBe(true);
   });
 
+  describe('theme support', () => {
+    it('should use CSS custom property for the note marker background color', () => {
+      const testNote: FretNote = { string: 1, fret: 3, note: 'G', x: 22, y: 8 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      // Verify the compiled stylesheet uses var(--gt-accent) for the marker,
+      // not a hardcoded hex color like #fd8d32
+      const styleSheets = Array.from(nativeElement.ownerDocument.styleSheets);
+      const rules: string[] = [];
+      for (const sheet of styleSheets) {
+        try {
+          for (const rule of Array.from(sheet.cssRules)) {
+            if (rule.cssText.includes('note-marker')) {
+              rules.push(rule.cssText);
+            }
+          }
+        } catch {
+          // cross-origin sheets may throw
+        }
+      }
+
+      const allRulesText = rules.join(' ');
+      expect(allRulesText).toContain('--gt-accent');
+      // Must NOT contain the hardcoded orange hex color
+      expect(allRulesText).not.toContain('#fd8d32');
+    });
+  });
+
   describe('responsive scaling', () => {
     it('should apply the fretboard-image class to the image element', () => {
       fixture.detectChanges();
