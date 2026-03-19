@@ -38,6 +38,8 @@
   --gt-hero-subtitle: #{gt.$neutral-light};
   --gt-card-shadow: #{gt.$card-shadow};
   --gt-card-shadow-hover: #{gt.$card-shadow-hover};
+  --gt-marker-glow: #{gt.$marker-glow};
+  --gt-marker-border: #{gt.$marker-border};
 }
 
 // Dark theme overrides for Taiga UI CSS custom properties
@@ -83,4 +85,6 @@
   --gt-hero-subtitle: #{gt.$neutral-light};
   --gt-card-shadow: #{gt.$card-shadow-dark};
   --gt-card-shadow-hover: #{gt.$card-shadow-hover-dark};
+  --gt-marker-glow: #{gt.$marker-glow-dark};
+  --gt-marker-border: #{gt.$marker-border};
 }

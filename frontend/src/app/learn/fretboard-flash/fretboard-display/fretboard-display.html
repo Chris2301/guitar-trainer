@@ -7,12 +7,13 @@
     i18n-alt="Fretboard image alt text@@fretboardFlash.fretboardAlt"
   />
   <div class="fretboard-overlay" data-testid="fretboard-overlay">
-    @if (note()) {
+    @let n = note();
+    @if (n) {
       <div
         class="note-marker"
         data-testid="note-marker"
-        [style.left.%]="note()!.x"
-        [style.top.%]="note()!.y"
+        [style.left.%]="n.x"
+        [style.top.%]="n.y"
         [style.width.%]="markerSizePercent"
       ></div>
     }

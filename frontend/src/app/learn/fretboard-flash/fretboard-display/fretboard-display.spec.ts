@@ -127,24 +127,56 @@ describe('FretboardDisplayComponent', () => {
 
       // Verify the compiled stylesheet uses var(--gt-accent) for the marker,
       // not a hardcoded hex color like #fd8d32
-      const styleSheets = Array.from(nativeElement.ownerDocument.styleSheets);
-      const rules: string[] = [];
-      for (const sheet of styleSheets) {
-        try {
-          for (const rule of Array.from(sheet.cssRules)) {
-            if (rule.cssText.includes('note-marker')) {
-              rules.push(rule.cssText);
-            }
-          }
-        } catch {
-          // cross-origin sheets may throw
-        }
-      }
-
-      const allRulesText = rules.join(' ');
+      const allRulesText = collectNoteMarkerCssRules();
       expect(allRulesText).toContain('--gt-accent');
       // Must NOT contain the hardcoded orange hex color
       expect(allRulesText).not.toContain('#fd8d32');
+    });
+  });
+
+  describe('visual styling', () => {
+    it('should apply a box-shadow glow using a CSS custom property for theme support', () => {
+      const testNote: FretNote = { string: 1, fret: 3, note: 'G', x: 22, y: 8 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      const allRulesText = collectNoteMarkerCssRules();
+      // The note marker must have a box-shadow for glow effect
+      expect(allRulesText).toContain('box-shadow');
+      // The box-shadow must use a CSS custom property so it adapts to light/dark theme
+      expect(allRulesText).toContain('--gt-marker-glow');
+    });
+
+    it('should apply a scale-in animation to the note marker via CSS', () => {
+      const testNote: FretNote = { string: 1, fret: 3, note: 'G', x: 22, y: 8 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      const allRulesText = collectNoteMarkerCssRules();
+      // The note marker must reference an animation name
+      expect(allRulesText).toContain('animation');
+      expect(allRulesText).toContain('note-marker-appear');
+    });
+
+    it('should define a @keyframes note-marker-appear animation in the stylesheet', () => {
+      const testNote: FretNote = { string: 1, fret: 3, note: 'G', x: 22, y: 8 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      const allKeyframesText = collectAllCssRules();
+      expect(allKeyframesText).toContain('note-marker-appear');
+    });
+
+    it('should apply a solid border to the note marker using a CSS custom property for theme support', () => {
+      const testNote: FretNote = { string: 2, fret: 5, note: 'A', x: 36, y: 25 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      const allRulesText = collectNoteMarkerCssRules();
+      // A solid border helps the marker stand out against varied fretboard backgrounds
+      expect(allRulesText).toMatch(/border:.*solid/);
+      // The border color must use a CSS custom property so it adapts to light/dark theme
+      expect(allRulesText).toContain('--gt-marker-border');
     });
   });
 
@@ -187,4 +219,36 @@ describe('FretboardDisplayComponent', () => {
       expect(marker.style.height).toBe('');
     });
   });
+
+  function collectNoteMarkerCssRules(): string {
+    const styleSheets = Array.from(nativeElement.ownerDocument.styleSheets);
+    const rules: string[] = [];
+    for (const sheet of styleSheets) {
+      try {
+        for (const rule of Array.from(sheet.cssRules)) {
+          if (rule.cssText.includes('note-marker')) {
+            rules.push(rule.cssText);
+          }
+        }
+      } catch {
+        // cross-origin sheets may throw
+      }
+    }
+    return rules.join(' ');
+  }
+
+  function collectAllCssRules(): string {
+    const styleSheets = Array.from(nativeElement.ownerDocument.styleSheets);
+    const rules: string[] = [];
+    for (const sheet of styleSheets) {
+      try {
+        for (const rule of Array.from(sheet.cssRules)) {
+          rules.push(rule.cssText);
+        }
+      } catch {
+        // cross-origin sheets may throw
+      }
+    }
+    return rules.join(' ');
+  }
 });

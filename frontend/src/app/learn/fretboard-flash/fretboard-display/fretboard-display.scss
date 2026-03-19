@@ -31,4 +31,21 @@
   background-color: var(--gt-accent);
   transform: translate(-50%, -50%);
   pointer-events: none;
+  border: 2px solid var(--gt-marker-border);
+  box-shadow: var(--gt-marker-glow);
+  animation: note-marker-appear 0.35s ease-out both;
+}
+
+@keyframes note-marker-appear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }

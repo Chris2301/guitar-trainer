@@ -1,51 +1,86 @@
-# Review Feedback — Task 5.2: Light/dark theme support for all game components
+# Review Feedback — Task 5.3: Visual styling of note marker (color, size, animation)
 ## Status: PASS
 ## Findings
 
 ### codestyle-reviewer
-No issues found.
+- **Severity**: Low
+- **Finding**: Blank lines between `@keyframes` percentage selectors are inconsistent with existing animation style in `_animations.scss`
+- **Fix**: Remove blank lines between keyframe selectors
+
+- **Severity**: Low
+- **Finding**: Test helper `collectAllCssRules()` name is overly generic for its single use case
+- **Fix**: Rename to something more descriptive like `collectAllStyleSheetRules()`
+
+- **Severity**: Low
+- **Finding**: Test description "should define a @keyframes..." wording could be clearer
+- **Fix**: Minor rewording suggestion
 
 ### security-reviewer
 No issues found.
 
 ### performance-reviewer
-No issues found.
+- **Severity**: Low
+- **Finding**: Signal `note()` is read 3 times in the template (once in `@if`, twice for `.x` and `.y`). Minor inefficiency.
+- **Fix**: Use `@let n = note()` to cache the signal value in the template
+
+- **Severity**: Low
+- **Finding**: 70% keyframe omits explicit `opacity: 1` — clarity issue, not correctness
+- **Fix**: Add `opacity: 1` at the 70% keyframe
+
+- **Severity**: Low
+- **Finding**: `collectAllCssRules()` scans all stylesheets on each test invocation without caching
+- **Fix**: Cache result or scope scan
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: The new `border-radius: 0.8rem` in `fretboard-flash-page.scss` is hardcoded instead of using the `$border-radius` design token from `_variables.scss`. Other components (`home.scss`, `learn.scss`, `header.scss`) import and use `gt.$border-radius`.
-- **Fix**: Add `@use '../../theme/variables' as gt;` and replace `border-radius: 0.8rem` with `border-radius: gt.$border-radius`.
+- **Finding**: Border color `rgba(255, 255, 255, 0.9)` is hardcoded rather than using a CSS custom property, inconsistent with the design token pattern used for glow and accent color
+- **Fix**: Add `--gt-marker-border` to `_theme.scss` and reference it in the component
+
+- **Severity**: Medium
+- **Finding**: Glow color raw `rgba()` values are copy-pasted in `_theme.scss` instead of referencing SCSS variables from `_variables.scss`, following the `$card-shadow` pattern
+- **Fix**: Define `$marker-glow-light` and `$marker-glow-dark` SCSS variables in `_variables.scss`
 
 - **Severity**: Low
-- **Finding**: Unit tests for theme support inspect `ownerDocument.styleSheets` to verify CSS custom properties. This approach could pass vacuously if `rules` array is empty (no stylesheet found). E2E tests are the reliable verification for rendered CSS values.
-- **Fix**: Add an assertion that `rules.length > 0` so the test fails if the stylesheet is not found, or promote the colour verification entirely to the E2E layer.
-
-- **Severity**: Low
-- **Finding**: E2E test asserts `toHaveAttribute('tuitheme', 'dark')` (lowercase) which relies on browser attribute normalization. Consistent with existing E2E tests, so no action needed.
-- **Fix**: No action needed.
+- **Finding**: `@keyframes note-marker-appear` is in the component SCSS while `fadeInUp` is in `_animations.scss` — inconsistency in animation placement policy
+- **Fix**: Either move to `_animations.scss` or document the policy
 
 ## Engineer Assessment
 ### Overall Decision: REFACTOR
 ### Reasoning per finding
 
-#### architect-reviewer — Hardcoded border-radius instead of design token
+#### architect-reviewer — Hardcoded border color instead of CSS custom property
 - **Decision**: Fix
-- **Reasoning**: This is a legitimate consistency issue. The `$border-radius` token exists in `_variables.scss` with the exact same value (`0.8rem`), and every other component in the codebase (`home.scss`, `learn.scss`, `header.scss`) imports and uses `gt.$border-radius`. The fretboard-flash-page has two occurrences of the hardcoded value (line 15 and line 44). If the design token is ever updated, these two spots would be missed, creating visual inconsistency. The fix is trivial and aligns with the established convention.
+- **Reasoning**: The component already uses `var(--gt-accent)` for background and `var(--gt-marker-glow)` for box-shadow, so the hardcoded `rgba(255, 255, 255, 0.9)` border is a genuine inconsistency. In dark mode the white border may be fine, but in light mode a white border on a potentially light background is questionable. Adding `--gt-marker-border` to `_theme.scss` is a small, low-risk change that completes the design token pattern already in use. No new complexity introduced.
 
-#### architect-reviewer — Unit tests could pass vacuously with empty rules array
-- **Decision**: Defer
-- **Reasoning**: This is a valid observation about test robustness, but the risk is low. The tests are currently passing and exercising real behavior. The reviewer themselves notes that E2E tests are the reliable verification layer for rendered CSS, and we already have E2E coverage for theme switching. Adding a `rules.length > 0` guard is a minor improvement but does not address a real bug or regression risk today. Not worth including in this refactor cycle.
+#### architect-reviewer — Glow color raw rgba values copy-pasted in _theme.scss
+- **Decision**: Fix
+- **Reasoning**: The existing pattern in `_theme.scss` is clear: raw color values live in `_variables.scss` as SCSS variables (e.g., `$card-shadow`, `$card-shadow-dark`), and `_theme.scss` references them. The `--gt-marker-glow` values bypass this pattern by inlining raw `rgba()` values directly. This is a real consistency issue and easy to fix by adding `$marker-glow` and `$marker-glow-dark` variables. Low risk, no new complexity.
 
-#### architect-reviewer — E2E lowercase tuiTheme attribute
-- **Decision**: Accept (no action needed)
-- **Reasoning**: The reviewer already concluded no action is needed, as it is consistent with existing E2E tests. Agreed.
+#### Low-severity / Nitpick findings
+- **codestyle-reviewer — Blank lines between keyframe selectors**: Will fix. The existing `_animations.scss` uses no blank lines between keyframe selectors. Removing the blank lines in the component SCSS is a trivial consistency fix.
+- **codestyle-reviewer — Test helper name `collectAllCssRules()`**: Will not fix. The name is clear enough in context and renaming it adds no meaningful value. The function is private to the test file.
+- **codestyle-reviewer — Test description wording**: Will not fix. The current wording is understandable. Subjective preference.
+- **performance-reviewer — Signal read 3 times in template**: Will fix. Using `@let` to cache the signal value is a clean one-liner improvement that follows Angular best practices and avoids redundant signal reads.
+- **performance-reviewer — Missing explicit opacity at 70% keyframe**: Will not fix. The browser correctly interpolates `opacity` between 0% and 100% keyframes. Adding it would be purely cosmetic documentation in CSS, not a correctness issue.
+- **performance-reviewer — `collectAllCssRules()` scans all stylesheets without caching**: Will not fix. This is a test helper that runs in a test environment with minimal stylesheets. Optimizing test utility performance is unnecessary overhead.
+- **architect-reviewer — Animation placement inconsistency**: Will not fix. `fadeInUp` is a global reusable animation used across multiple components. `note-marker-appear` is component-specific (it includes `translate(-50%, -50%)` offsets tied to the marker's positioning). Keeping component-specific animations co-located with the component is the correct scoping decision. No policy documentation needed at this scale.
 
 ## Re-Review (Cycle 2)
-All four reviewers confirmed the border-radius fix was applied correctly. No new findings.
-- **codestyle-reviewer**: PASS — fix applied correctly
+- **codestyle-reviewer**: PASS — blank lines between keyframe selectors removed correctly
 - **security-reviewer**: PASS — no security changes to re-evaluate
-- **performance-reviewer**: PASS — no performance changes to re-evaluate
-- **architect-reviewer**: PASS — fix applied correctly
+- **performance-reviewer**: PASS — `@let n = note()` caching applied correctly
+- **architect-reviewer**: FAIL — `--gt-marker-border` uses raw `rgba()` in `_theme.scss` instead of a SCSS variable in `_variables.scss`. The glow fix (`$marker-glow`) was applied correctly, but the border value was not extracted to a variable following the same pattern.
 
 ### Engineer Assessment (Cycle 2)
+### Overall Decision: REFACTOR
+### Reasoning per finding
+
+#### architect-reviewer — Border value not extracted to SCSS variable
+- **Decision**: Fix
+- **Reasoning**: The original finding asked for a CSS custom property (done) but the pattern established by the glow fix in this same PR is to also back it with a SCSS variable in `_variables.scss`. The `$marker-glow` / `$marker-glow-dark` pattern was correctly applied for the glow, but the border was left as raw `rgba()` in `_theme.scss`. This is a minor inconsistency within the same PR. Adding `$marker-border` to `_variables.scss` and referencing it is trivial.
+
+## Re-Review (Cycle 3)
+- **architect-reviewer**: PASS — `$marker-border` variable added to `_variables.scss`, both theme blocks in `_theme.scss` now reference `#{gt.$marker-border}`. No raw `rgba()` literal remains.
+
+### Engineer Assessment (Cycle 3)
 ### Overall Decision: ACCEPT
