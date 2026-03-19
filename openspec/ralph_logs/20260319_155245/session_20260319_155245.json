@@ -106,6 +106,19 @@
       },
       "cost_usd": 2.3685027499999993,
       "completed": true
+    },
+    {
+      "iteration": 9,
+      "task_assigned": "- [ ] 3.1 Implement game state machine: `SHOW_NOTE` → `SHOW_ANSWER` → next note\n",
+      "duration_seconds": 744,
+      "tokens": {
+        "input": 13,
+        "output": 2191,
+        "cache_read": 672847,
+        "total": 675051
+      },
+      "cost_usd": 3.3641097500000012,
+      "completed": true
     }
   ]
 }
