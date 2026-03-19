@@ -1,0 +1,59 @@
+@use '../theme/variables' as gt;
+
+:host {
+  display: block;
+  max-width: gt.$max-width;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+
+  &__tagline {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gt-primary);
+    margin: 0 0 1rem;
+  }
+
+  &__subtitle {
+    font-size: 1.25rem;
+    color: var(--gt-text);
+    opacity: 0.8;
+    margin: 0;
+  }
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+
+  &__item {
+    background: var(--gt-surface);
+    border-radius: gt.$border-radius;
+    padding: 1.5rem;
+    border: 1px solid var(--tui-border-normal, #{gt.$neutral-light});
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gt-primary);
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    color: var(--gt-text);
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+.cta {
+  text-align: center;
+  padding: 2rem 0 3rem;
+}

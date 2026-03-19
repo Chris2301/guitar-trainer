@@ -1,23 +1,23 @@
 # Review Feedback
-## Status: PASS
+## Status: PASS (cycle 2)
 ## Findings
 
 ### codestyle-reviewer
 - **Severity**: Medium
-- **Finding**: Test name uses narrative style ("visitor sees...") instead of "should" prefix used in existing smoke.spec.ts
-- **Fix**: Rename to use "should" prefix for consistency
+- **Finding**: Component file naming — `home.ts` and `learn.ts` lack `.component` suffix. However, the existing `app.ts` in the project also omits it, so this may be an intentional convention.
+- **Fix**: Clarify convention; if `app.ts` is the pattern, this is fine. If Angular standard is desired, rename to `home.component.ts`.
 
 - **Severity**: Medium
-- **Finding**: Long test name causes parameter wrapping across multiple lines
-- **Fix**: Shorten test name and keep `{ page }` on same line
+- **Finding**: `home.ts` uses the deprecated `styleUrl` (singular) property instead of `styleUrls` (plural array) or the newer `styles` option.
+- **Fix**: Use `styleUrl: './home.scss'` (singular is valid in Angular v21 standalone) — verify it compiles correctly.
 
 - **Severity**: Low
-- **Finding**: Comments are verbose; existing tests have minimal comments
-- **Fix**: Reduce or consolidate comments
+- **Finding**: LearnComponent uses inline template/styles while HomeComponent uses separate files — inconsistent pattern.
+- **Fix**: Acceptable for a placeholder, but document or standardize when the learn page is fleshed out.
 
 - **Severity**: Low
-- **Finding**: `featureItems` only asserts not zero count, could be more explicit
-- **Fix**: Consider asserting specific count when implementation defines it
+- **Finding**: LearnComponent hardcodes `max-width: 1140px` instead of using theme variable `gt.$max-width`.
+- **Fix**: Extract to SCSS file using theme variable, or add TODO comment.
 
 ### security-reviewer
 No issues found
@@ -27,43 +27,44 @@ No issues found
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: Tagline assertions check English text ("free", "guitar") but the project uses multi-locale i18n; the locale assumption is undocumented
-- **Fix**: Add a comment like `// asserts English locale content` above the tagline checks
+- **Finding**: No `i18n` attributes on user-visible text. Design doc mandates Angular i18n from day 1 with NL, DE, EN support.
+- **Fix**: Add `i18n` attributes to all user-facing elements (hero tagline, subtitle, feature titles/descriptions, CTA text).
 
 - **Severity**: Medium
-- **Finding**: `featureItems` assertion `.not.toHaveCount(0)` only proves at least one item exists; a regression to 1 item would pass undetected
-- **Fix**: Tighten count assertion during GREEN/REFACTOR phase; acceptable for RED phase
+- **Finding**: CTA button uses hand-rolled `<a routerLink>` with custom SCSS instead of Taiga UI `tuiButton`. Design doc establishes Taiga UI as the component library.
+- **Fix**: Replace with `<a tuiButton appearance="primary" routerLink="/learn">`.
 
 - **Severity**: Low
-- **Finding**: URL assertion `toHaveURL(/\/learn$/)` is broader than necessary; also matches paths like `/anything/learn`
-- **Fix**: Use exact string `toHaveURL('/learn')` instead
+- **Finding**: `data-testid="feature-item"` duplicated on three siblings — test-smell for future `querySelector` usage.
+- **Fix**: Use distinct testids or query by shared class/parent container.
 
 - **Severity**: Low
-- **Finding**: Inconsistent scoping — some selectors root from section containers, others from full page
-- **Fix**: Minor readability; add visual separation between sections
+- **Finding**: LearnComponent hardcodes `max-width: 1140px` instead of using theme variable.
+- **Fix**: Extract to SCSS file or add TODO comment.
 
 ## Engineer Assessment
+
 ### Overall Decision: REFACTOR
+
 ### Reasoning per finding
 
-#### codestyle-reviewer — Test name uses narrative style instead of "should" prefix
-- **Decision**: Fix
-- **Reasoning**: The existing smoke.spec.ts consistently uses "should ..." naming. Consistency within a small codebase is cheap to maintain and prevents style drift. The fix is a one-line rename with zero risk.
+#### codestyle-reviewer — Component file naming lacks `.component` suffix
+- **Decision**: Accept
+- **Reasoning**: The existing `app.ts` already establishes the convention of omitting the `.component` suffix. This is an intentional project convention, not an oversight. Angular CLI historically generated `.component.ts` but the framework does not require it. The project is consistent: `app.ts`, `home.ts`, `learn.ts` all follow the same pattern. Renaming now would either break the convention or require renaming all files including `app.ts`, which is out of scope for this task.
 
-#### codestyle-reviewer — Long test name causes parameter wrapping
-- **Decision**: Fix
-- **Reasoning**: This is addressed automatically by shortening the test name per the finding above. Once the name is shorter, `{ page }` fits on the same line. No separate effort needed.
+#### codestyle-reviewer — `styleUrl` (singular) allegedly deprecated
+- **Decision**: Accept
+- **Reasoning**: This is a false positive. In Angular v17+ standalone components, `styleUrl` (singular string) is a valid and supported property — it is not deprecated. It was introduced specifically as a convenience for components with a single style file. The existing `app.ts` uses the same `styleUrl` pattern and the project compiles. The reviewer's own fix suggestion acknowledges this: "singular is valid in Angular v21 standalone". No change needed.
 
-#### architect-reviewer — Tagline assertions assume English locale without documenting it
-- **Decision**: Fix
-- **Reasoning**: The design doc explicitly calls out multi-locale i18n (NL, DE, EN) from day 1. A one-line comment clarifying the locale assumption costs nothing and prevents future confusion when someone adds locale-specific E2E tests. There is also a dedicated task (4.2) for language switching tests, so making the English assumption explicit here avoids contradictions later.
-
-#### architect-reviewer — featureItems assertion only checks not-zero count
+#### architect-reviewer — No i18n attributes on user-visible text
 - **Decision**: Defer
-- **Reasoning**: We are currently in the RED phase of TDD. The implementation does not exist yet, so we do not know the exact number of feature items. The reviewer themselves acknowledges this is acceptable for the RED phase. Once the HomeComponent is implemented (task 1.3), the REFACTOR step is the right time to tighten this assertion to a specific count. Changing it now would mean guessing a number that may need to change immediately.
+- **Reasoning**: The task list explicitly separates i18n into task 4.3: "Add translations for all visible text on homepage and learn page." The current task (1.2) is specifically about creating the HomeComponent with the hero section. Adding i18n attributes is planned work that belongs in a later task. Adding them now would mix concerns and make the current task harder to review. This is not a missing requirement — it is a sequenced requirement.
+
+#### architect-reviewer — CTA button uses hand-rolled styles instead of Taiga UI `tuiButton`
+- **Decision**: Fix
+- **Reasoning**: This is a valid finding. The design doc explicitly states "Taiga UI for all UI components" and the system prompt says "use Taiga components before building custom ones." The CTA button is a standard button/link — exactly the kind of element Taiga UI provides out of the box. Using `tuiButton` gives consistent theming (light/dark mode), accessibility, and reduces custom SCSS. The custom gradient styling can be achieved through Taiga's appearance system or a custom appearance. This should be addressed in this task.
 
 #### Low-severity / Nitpick findings
-- **Comments are verbose**: Will trim comments slightly during the refactor to align with the minimal comment style in smoke.spec.ts. Low effort, improves consistency.
-- **featureItems count (codestyle-reviewer duplicate)**: Same as architect finding above, deferred to REFACTOR phase after implementation.
-- **URL regex broader than necessary**: Will fix by changing to exact string match `toHaveURL('/learn')`. The regex could theoretically match unintended paths, and the exact match is simpler to read. Trivial change.
-- **Inconsistent scoping of selectors**: Will not address. The current scoping is intentional: hero assertions scope within the hero section (correct), features scope within the features section (correct), and the CTA is page-level because it triggers navigation. This is logical, not inconsistent.
+- **LearnComponent inline vs. external files inconsistency** (codestyle-reviewer, Low): Accept. LearnComponent is a minimal placeholder with two lines of template and three lines of style. Inline is appropriate for this size. When the component grows in task 2.2 or later, it will naturally be extracted to separate files.
+- **LearnComponent hardcodes `max-width: 1140px`** (codestyle-reviewer + architect-reviewer, Low): Accept for now but worth fixing when LearnComponent is properly implemented in task 2.2. The HomeComponent already correctly uses `gt.$max-width`. Since LearnComponent is a placeholder that will be reworked soon, the inconsistency is short-lived.
+- **Duplicate `data-testid="feature-item"`** (architect-reviewer, Low): Accept. The current Playwright tests use `getByTestId('feature-highlights')` to scope to the parent container and then count child elements. The duplicate testid is not causing test fragility. If future tests need to target individual feature items, distinct testids can be added at that point.

@@ -1,0 +1,42 @@
+import { TestBed } from '@angular/core/testing';
+import { HomeComponent } from './home';
+import { provideRouter } from '@angular/router';
+
+describe('HomeComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HomeComponent],
+      providers: [provideRouter([])],
+    }).compileComponents();
+  });
+
+  it('should display a hero tagline mentioning free guitar training', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+
+    const tagline = fixture.nativeElement.querySelector('[data-testid="hero-tagline"]');
+    expect(tagline).toBeTruthy();
+    const text = tagline.textContent.toLowerCase();
+    expect(text).toContain('free');
+    expect(text).toContain('guitar');
+  });
+
+  it('should display at least one feature item', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+
+    const items = fixture.nativeElement.querySelectorAll('[data-testid="feature-item"]');
+    expect(items.length).toBeGreaterThan(0);
+  });
+
+  it('should have a CTA link to the learn page with "Start Learning" text using Taiga UI button', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    fixture.detectChanges();
+
+    const cta = fixture.nativeElement.querySelector('[data-testid="cta-learn"]');
+    expect(cta).toBeTruthy();
+    expect(cta.textContent.toLowerCase()).toContain('start learning');
+    expect(cta.getAttribute('href') || cta.getAttribute('routerLink')).toBeTruthy();
+    expect(cta.hasAttribute('tuiButton') || cta.getAttribute('tuiButton') !== null).toBe(true);
+  });
+});
