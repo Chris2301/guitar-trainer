@@ -9,4 +9,8 @@ export const routes: Routes = [
     path: 'learn',
     loadComponent: () => import('./learn/learn').then((m) => m.LearnComponent),
   },
+  {
+    path: '**',
+    redirectTo: '',
+  },
 ];

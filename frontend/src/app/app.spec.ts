@@ -1,7 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app';
-import { RouterOutlet } from '@angular/router';
-import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 import { TUI_DARK_MODE } from '@taiga-ui/core';
 import { appConfig } from './app.config';
@@ -17,15 +15,12 @@ describe('AppComponent', () => {
     }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it('should render tui-root with light theme attribute by default', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+    fixture.detectChanges();
 
-  it('should contain a router-outlet', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const routerOutlet = fixture.debugElement.query(By.directive(RouterOutlet));
-    expect(routerOutlet).toBeTruthy();
+    const tuiRoot = fixture.nativeElement.querySelector('tui-root');
+    expect(tuiRoot).toBeTruthy();
+    expect(tuiRoot.getAttribute('tuitheme')).toBe('light');
   });
 });

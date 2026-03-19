@@ -16,7 +16,7 @@ The WHAT
 
 ## 3. Navigation and Layout
 - [x] 3.1 Write Playwright test: navigation between home and learn works, header visible on both pages
-- [ ] 3.2 Configure routing (`/` → home, `/learn` → learn)
+- [x] 3.2 Configure routing (`/` → home, `/learn` → learn)
 - [ ] 3.3 Shared header with navigation links, theme toggle and language selector
 
 ## 4. Theming and i18n Verification

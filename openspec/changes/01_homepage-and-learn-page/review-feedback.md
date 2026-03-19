@@ -1,9 +1,11 @@
-# Review Feedback — Task 3.1 (Playwright test: navigation between home and learn)
-## Status: NEEDS ASSESSMENT
+# Review Feedback — Task 3.2 (Configure routing)
+## Status: FAIL
 ## Findings
 
 ### codestyle-reviewer
-No issues found.
+- **Severity**: Medium
+- **Finding**: Test name in `app.spec.ts` ("should inject ThemeService and expose theme name for tui-root") is misleading — the test only checks a DOM attribute, not ThemeService injection.
+- **Fix**: Rename to `'should set tuiTheme attribute on tui-root based on theme signal'`
 
 ### security-reviewer
 No issues found.
@@ -12,32 +14,49 @@ No issues found.
 No issues found.
 
 ### architect-reviewer
-- **Severity**: Low
-- **Finding**: Test references `data-testid` attributes not yet implemented. This is the expected TDD RED state. Should not be merged to develop while failing.
-- **Fix**: No code change needed. Confirm this test is not added to any CI gate until tasks 3.2 and 3.3 are merged.
+- **Severity**: Warning
+- **Finding**: Test name in `app.spec.ts` is misleading — implies testing a service contract but only tests a rendered attribute.
+- **Fix**: Rename to something accurate, e.g. `'should render tui-root with light theme attribute by default'`
 
-- **Severity**: Low
-- **Finding**: All assertions packed into a single `test()` block — if step 1 fails, steps 2 and 3 produce no signal. Could use `test.step()` for per-step diagnostics.
-- **Fix**: Add named `test.step()` calls inside the single test for better Playwright report output.
+- **Severity**: Warning
+- **Finding**: Two E2E smoke tests deleted ("should render the app root element", "should render the Taiga UI root"). No E2E test now verifies fundamental DOM scaffolding renders.
+- **Fix**: Retain at least one structural smoke assertion, e.g. `expect(page.locator('tui-root')).toBeAttached()`
 
-- **Severity**: Low
-- **Finding**: Describe block naming is consistent with intent but not aligned to any formal convention. Pure cosmetic.
-- **Fix**: No action required.
+- **Severity**: Warning
+- **Finding**: `app.routes.ts` has no wildcard (`**`) route. Unknown URLs render blank page.
+- **Fix**: Add `{ path: '**', redirectTo: '' }`
+
+- **Severity**: Suggestion
+- **Finding**: `provideRouter(routes)` is bare — adding `withComponentInputBinding()` avoids boilerplate later.
+- **Fix**: `provideRouter(routes, withComponentInputBinding())` in `app.config.ts`
 
 ## Engineer Assessment
-### Overall Decision: ACCEPT
+### Overall Decision: REFACTOR
 ### Reasoning per finding
-#### architect-reviewer — data-testid attributes not yet implemented (RED state)
-- **Decision**: Accept
-- **Reasoning**: This is intentional TDD workflow. The test is written first (RED phase), and the production code adding `data-testid` attributes will follow in subsequent tasks (3.2, 3.3). The test is on a feature branch, not on develop, so there is no CI gate risk. No action needed.
 
-#### architect-reviewer — All assertions in a single test block
-- **Decision**: Defer
-- **Reasoning**: Using `test.step()` for per-step diagnostics is a reasonable improvement for Playwright report readability, but it is cosmetic and low-impact. The test is a single user journey which is correct per project guidelines ("one e2e per user journey, not per page"). If we revisit this test for other reasons, we can add `test.step()` calls at that time. Not worth a dedicated change cycle now.
+#### codestyle-reviewer — Misleading test name in app.spec.ts
+- **Decision**: Fix
+- **Reasoning**: The test name says "should inject ThemeService and expose theme name for tui-root" but the test body only checks that `tui-root` has a `tuitheme="light"` attribute. It does not assert anything about ThemeService injection. A misleading test name actively hurts maintainability because a future developer reading the test suite will have wrong expectations about what is covered. This is a trivial rename with zero risk. Will fix.
 
-#### architect-reviewer — Describe block naming convention
-- **Decision**: Accept
-- **Reasoning**: Reviewer explicitly states this is pure cosmetic and no action is required. Agreed.
+#### architect-reviewer — Misleading test name (duplicate of above)
+- **Decision**: Fix
+- **Reasoning**: Same finding as codestyle-reviewer. Both reviewers independently flagged it, which reinforces that the name is genuinely confusing. Will address together with the codestyle fix above. The architect's suggested name ("should render tui-root with light theme attribute by default") is slightly more precise about what the test actually verifies, so I will use a name close to that.
+
+#### architect-reviewer — Deleted E2E smoke tests leave no DOM scaffolding verification
+- **Decision**: Accept (no change)
+- **Reasoning**: The existing `smoke.spec.ts` still verifies the app loads (checks page title). The `navigation.spec.ts` journey test navigates to `/`, asserts the header is visible, clicks links, and verifies URLs. If the app root or `tui-root` failed to render, every one of these tests would fail. Adding a standalone assertion for `tui-root` being attached is exactly the kind of "test framework plumbing, not behavior" test that our test guidelines explicitly prohibit. The scaffolding is implicitly covered by every E2E journey that loads the app. No action needed.
+
+#### architect-reviewer — No wildcard route causes blank page on unknown URLs
+- **Decision**: Fix
+- **Reasoning**: This is a real usability bug. If a user navigates to a non-existent URL (e.g., `/typo`), they see a blank page with no feedback. Adding `{ path: '**', redirectTo: '' }` is a one-line change with no risk that provides correct fallback behavior. This is standard Angular routing practice and should have been included from the start.
 
 #### Low-severity / Nitpick findings
-- All three findings are low severity. None will be addressed in this cycle. The `test.step()` improvement is noted for a future pass if the test is modified for other reasons.
+- **architect-reviewer suggestion (withComponentInputBinding)**: Defer. This is a forward-looking convenience feature, not a current requirement. Adding it now would be speculative — no route currently uses input binding. It can be added when the first route parameter is needed, at which point a test will drive it. Adding unused configuration contradicts the "minimal code" TDD principle.
+
+## Re-review (Cycle 2)
+### Status: PASS
+All four reviewers confirmed fixes were applied correctly. No new findings.
+- **codestyle-reviewer**: No issues found. Test name fix verified correct.
+- **security-reviewer**: No issues found.
+- **performance-reviewer**: No issues found.
+- **architect-reviewer**: No issues found. Both fixes (test rename + wildcard route) verified correct.
