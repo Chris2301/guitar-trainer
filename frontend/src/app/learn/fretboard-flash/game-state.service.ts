@@ -11,6 +11,12 @@ export enum GameState {
 export const SHOW_NOTE_DURATION_MS = 5000;
 export const SHOW_ANSWER_DURATION_MS = 3000;
 
+/**
+ * Manages the fretboard flash game state machine (IDLE -> SHOW_NOTE -> SHOW_ANSWER cycle).
+ *
+ * This service must remain component-provided (not `providedIn: 'root'`) because it
+ * implements OnDestroy to clean up timers, which only fires for component-scoped providers.
+ */
 @Injectable()
 export class GameStateService implements OnDestroy {
   private readonly progression = inject(ProgressionService);

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { GameStateService, GameState } from './game-state.service';
 import { ProgressionService } from './progression.service';
 import { NoteDataService } from './note-data.service';
+import { FretNote } from './note-data';
 
 describe('GameStateService', () => {
   let service: GameStateService;
@@ -326,6 +327,123 @@ describe('GameStateService', () => {
 
       // Timer should have been cleared — state should NOT have advanced to SHOW_ANSWER
       expect(service.state()).toBe(GameState.SHOW_NOTE);
+    });
+  });
+
+  describe('ProgressionService integration', () => {
+    it('should populate currentNote with the exact note returned by ProgressionService.drawNote', () => {
+      const progression = TestBed.inject(ProgressionService);
+      const fakeNote: FretNote = { string: 1, fret: 0, note: 'E', x: 50, y: 10 };
+      vi.spyOn(progression, 'drawNote').mockReturnValue(fakeNote);
+
+      service.start();
+
+      expect(service.currentNote()).toBe(fakeNote);
+    });
+
+    it('should populate currentNote with the note from drawNote on nextNote transition', () => {
+      const progression = TestBed.inject(ProgressionService);
+      const firstNote: FretNote = { string: 6, fret: 0, note: 'E', x: 50, y: 90 };
+      const secondNote: FretNote = { string: 5, fret: 0, note: 'A', x: 50, y: 75 };
+      vi.spyOn(progression, 'drawNote')
+        .mockReturnValueOnce(firstNote)
+        .mockReturnValueOnce(secondNote);
+
+      service.start();
+      expect(service.currentNote()).toBe(firstNote);
+
+      service.showAnswer();
+      service.nextNote();
+      expect(service.currentNote()).toBe(secondNote);
+    });
+
+    it('should provide notes that belong to the current progression pool', () => {
+      const progression = TestBed.inject(ProgressionService);
+
+      service.start();
+      const note = service.currentNote()!;
+      const pool = progression.getCurrentPool();
+
+      expect(pool.some(p => p.string === note.string && p.fret === note.fret)).toBe(true);
+    });
+
+    it('should trigger pool expansion after all open string notes have been drawn', () => {
+      const progression = TestBed.inject(ProgressionService);
+      const openStrings = [...progression.getCurrentPool()];
+      expect(openStrings.length).toBe(6);
+
+      // Control Math.random to return each open string note in sequence
+      let callIndex = 0;
+      vi.spyOn(Math, 'random').mockImplementation(() => {
+        // Return values that map to indices 0..5 sequentially for a pool of 6
+        const index = callIndex % openStrings.length;
+        callIndex++;
+        return index / openStrings.length;
+      });
+
+      // Run through 6 game cycles (start + 5 nextNote calls)
+      service.start(); // draws note 0
+      for (let i = 1; i < openStrings.length; i++) {
+        service.showAnswer();
+        service.nextNote(); // draws note i
+      }
+
+      // After all 6 open string notes shown, pool should have expanded
+      expect(progression.getCurrentFret()).toBeGreaterThan(0);
+
+      vi.restoreAllMocks();
+    });
+
+    it('should continue the game loop after pool expansion with notes from the expanded pool', () => {
+      const progression = TestBed.inject(ProgressionService);
+      const openStrings = [...progression.getCurrentPool()];
+
+      // Force all open strings to be marked as shown to trigger expansion
+      for (const note of openStrings) {
+        progression.markNoteAsShown(note);
+      }
+
+      // Pool should now be expanded
+      expect(progression.getCurrentFret()).toBeGreaterThan(0);
+      const expandedPool = progression.getCurrentPool();
+
+      // Start game — should draw from expanded pool
+      service.start();
+      const note = service.currentNote()!;
+      expect(expandedPool.some(p => p.string === note.string && p.fret === note.fret)).toBe(true);
+    });
+
+    it('should reset progression pool when the game is stopped and restarted', () => {
+      const progression = TestBed.inject(ProgressionService);
+
+      // Expand pool manually
+      const openStrings = [...progression.getCurrentPool()];
+      for (const note of openStrings) {
+        progression.markNoteAsShown(note);
+      }
+      expect(progression.getCurrentFret()).toBeGreaterThan(0);
+
+      // Start and stop game
+      service.start();
+      service.stop();
+
+      // Pool should be back to open strings
+      expect(progression.getCurrentFret()).toBe(0);
+      expect(progression.getCurrentPool().length).toBe(6);
+
+      // Restarting should draw from initial pool
+      service.start();
+      const note = service.currentNote()!;
+      expect(note.fret).toBe(0);
+    });
+
+    it('should mark drawn notes as shown in the progression service', () => {
+      const progression = TestBed.inject(ProgressionService);
+
+      service.start();
+      const firstNote = service.currentNote()!;
+
+      expect(progression.hasBeenShown(firstNote)).toBe(true);
     });
   });
 
