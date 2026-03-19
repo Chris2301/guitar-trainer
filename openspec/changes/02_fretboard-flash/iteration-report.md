@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 5.1 Game page layout — note letter large and centered, fretboard below
+**From tasks.md:** 5.2 Light/dark theme support for all game components
 
 ## Checklist
 ### 1. Understanding
@@ -8,20 +8,23 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Wrapped the note display in a persistent `note-area` container with flexbox centering and min-height to prevent layout shifts. Note letter styled at 7rem font size with accent color, fretboard below, controls at bottom. Used `gap` instead of individual margins. Added responsive breakpoint at 768px (matching project convention). Added 5 layout tests verifying DOM order and conditional rendering.
+**Approach:** Replace hardcoded color values in fretboard-flash SCSS files with CSS custom properties (`--gt-accent`, `--gt-surface`, `--gt-text`) that adapt to light/dark themes. Use the existing `$border-radius` design token from `_variables.scss`. Add unit tests verifying CSS custom property usage and E2E Playwright tests verifying computed colors in both themes.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
 - [x] Implemented minimum code to pass
 - [x] All tests pass
 
-**Test file(s):** `frontend/src/app/learn/fretboard-flash/fretboard-flash-page/fretboard-flash-page.spec.ts`
+**Test file(s):**
+- `frontend/src/app/learn/fretboard-flash/fretboard-display/fretboard-display.spec.ts`
+- `frontend/src/app/learn/fretboard-flash/fretboard-flash-page/fretboard-flash-page.spec.ts`
+- `frontend/e2e/journeys/fretboard-flash-theme.spec.ts`
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — Medium: breakpoint inconsistency (600px vs 768px) — fixed in cycle 2
-- [x] `security-reviewer` — High/Medium: pre-existing auth issues, deferred (not introduced by this diff)
-- [x] `performance-reviewer` — Low: pre-existing issues, all accepted
-- [x] `architect-reviewer` — Low: suggestions accepted or deferred to task 5.2
+- [x] `codestyle-reviewer` — passed (no issues)
+- [x] `security-reviewer` — passed (no issues)
+- [x] `performance-reviewer` — passed (no issues)
+- [x] `architect-reviewer` — medium: hardcoded border-radius → fixed in cycle 2
 
 ### 4. Engineer Assessment
 - [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), ACCEPT (cycle 2)
@@ -30,7 +33,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** 7d79672 feat: add game page layout with centered note and fretboard below
+**Commit:** 89c422c feat: add light/dark theme support for fretboard flash components
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
