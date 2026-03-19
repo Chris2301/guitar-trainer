@@ -152,4 +152,22 @@ describe('HeaderComponent', () => {
     const learnLink = fixture.nativeElement.querySelector('[data-testid="nav-learn"]');
     expect(learnLink.getAttribute('href')).toBe('/learn');
   });
+
+  it('should show translatable aria-label "Switch to dark theme" when light mode is active', () => {
+    darkModeSignal.set(false);
+    const fixture = TestBed.createComponent(HeaderComponent);
+    fixture.detectChanges();
+
+    const toggle = fixture.nativeElement.querySelector('[data-testid="theme-toggle"]');
+    expect(toggle.getAttribute('aria-label')).toBe('Switch to dark theme');
+  });
+
+  it('should show translatable aria-label "Switch to light theme" when dark mode is active', () => {
+    darkModeSignal.set(true);
+    const fixture = TestBed.createComponent(HeaderComponent);
+    fixture.detectChanges();
+
+    const toggle = fixture.nativeElement.querySelector('[data-testid="theme-toggle"]');
+    expect(toggle.getAttribute('aria-label')).toBe('Switch to light theme');
+  });
 });

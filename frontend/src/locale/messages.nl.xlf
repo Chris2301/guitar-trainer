@@ -30,6 +30,16 @@
         <target>Taalkeuze</target>
         <note priority="1" from="description">Language selector aria label</note>
       </trans-unit>
+      <trans-unit id="header.themeToggle.lightLabel" datatype="html">
+        <source>Switch to light theme</source>
+        <target>Schakel naar licht thema</target>
+        <note priority="1" from="description">Theme toggle aria label for switching to light</note>
+      </trans-unit>
+      <trans-unit id="header.themeToggle.darkLabel" datatype="html">
+        <source>Switch to dark theme</source>
+        <target>Schakel naar donker thema</target>
+        <note priority="1" from="description">Theme toggle aria label for switching to dark</note>
+      </trans-unit>
       <trans-unit id="home.hero.tagline" datatype="html">
         <source> Free, ad-free, gamified guitar training </source>
         <target> Gratis, zonder reclame, gegamificeerde gitaartraining </target>
@@ -37,7 +47,7 @@
       </trans-unit>
       <trans-unit id="home.hero.subtitle" datatype="html">
         <source> Master the fretboard with interactive exercises — no cost, no ads, just music. </source>
-        <target> Beheers het toetsenbord met interactieve oefeningen — geen kosten, geen reclame, alleen muziek. </target>
+        <target> Beheers het fretboard met interactieve oefeningen — geen kosten, geen reclame, alleen muziek. </target>
         <note priority="1" from="description">Hero subtitle</note>
       </trans-unit>
       <trans-unit id="home.features.heading" datatype="html">

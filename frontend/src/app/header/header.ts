@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, InjectionToken, LOCALE_ID, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, InjectionToken, LOCALE_ID, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ThemeService } from '../theme';
@@ -42,6 +42,12 @@ export class HeaderComponent {
   protected readonly themeService = inject(ThemeService);
   protected readonly isDark = this.themeService.isDarkMode;
   protected readonly languages = LANGUAGES;
+
+  protected readonly themeToggleLabel = computed(() =>
+    this.isDark()
+      ? $localize`:Theme toggle aria label for switching to light@@header.themeToggle.lightLabel:Switch to light theme`
+      : $localize`:Theme toggle aria label for switching to dark@@header.themeToggle.darkLabel:Switch to dark theme`,
+  );
 
   private readonly localeId = inject(LOCALE_ID);
   private readonly document = inject(DOCUMENT);

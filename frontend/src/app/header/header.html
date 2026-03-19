@@ -20,11 +20,7 @@
       class="header__theme-toggle"
       type="button"
       (click)="themeService.toggleTheme()"
-      [attr.aria-label]="
-        isDark()
-          ? 'Switch to light theme'
-          : 'Switch to dark theme'
-      "
+      [attr.aria-label]="themeToggleLabel()"
     >
       @if (isDark()) {
         <span aria-hidden="true" class="header__theme-icon">

@@ -30,6 +30,16 @@
         <target>Sprachauswahl</target>
         <note priority="1" from="description">Language selector aria label</note>
       </trans-unit>
+      <trans-unit id="header.themeToggle.lightLabel" datatype="html">
+        <source>Switch to light theme</source>
+        <target>Zum hellen Thema wechseln</target>
+        <note priority="1" from="description">Theme toggle aria label for switching to light</note>
+      </trans-unit>
+      <trans-unit id="header.themeToggle.darkLabel" datatype="html">
+        <source>Switch to dark theme</source>
+        <target>Zum dunklen Thema wechseln</target>
+        <note priority="1" from="description">Theme toggle aria label for switching to dark</note>
+      </trans-unit>
       <trans-unit id="home.hero.tagline" datatype="html">
         <source> Free, ad-free, gamified guitar training </source>
         <target> Kostenlos, werbefrei, spielerisches Gitarrentraining </target>
