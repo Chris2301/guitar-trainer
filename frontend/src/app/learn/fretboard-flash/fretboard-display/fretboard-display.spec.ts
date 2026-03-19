@@ -118,4 +118,44 @@ describe('FretboardDisplayComponent', () => {
     const marker = nativeElement.querySelector('[data-testid="note-marker"]');
     expect(marker!.classList.contains('note-marker')).toBe(true);
   });
+
+  describe('responsive scaling', () => {
+    it('should apply the fretboard-image class to the image element', () => {
+      fixture.detectChanges();
+
+      const img = nativeElement.querySelector('[data-testid="fretboard-image"]') as HTMLElement;
+      expect(img.classList.contains('fretboard-image')).toBe(true);
+    });
+
+    it('should use percentage-based width on the note marker for proportional scaling', () => {
+      const testNote: FretNote = { string: 3, fret: 5, note: 'C', x: 36.3, y: 42 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      const marker = nativeElement.querySelector('[data-testid="note-marker"]') as HTMLElement;
+      expect(marker.style.width).toBe('2%');
+    });
+
+    it('should not set an inline height on the marker so SCSS aspect-ratio controls the shape', () => {
+      const testNote: FretNote = { string: 1, fret: 3, note: 'G', x: 22, y: 8 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      const marker = nativeElement.querySelector('[data-testid="note-marker"]') as HTMLElement;
+      // Height is not set inline — the SCSS aspect-ratio: 1 rule ensures a circle
+      expect(marker.style.height).toBe('');
+    });
+
+    it('should not use fixed pixel dimensions on the note marker', () => {
+      const testNote: FretNote = { string: 2, fret: 1, note: 'C', x: 9.3, y: 25 };
+      fixture.componentRef.setInput('note', testNote);
+      fixture.detectChanges();
+
+      const marker = nativeElement.querySelector('[data-testid="note-marker"]') as HTMLElement;
+      // Width should be a percentage, not a pixel value
+      expect(marker.style.width).not.toContain('px');
+      // Height should not be set (aspect-ratio handles it)
+      expect(marker.style.height).toBe('');
+    });
+  });
 });

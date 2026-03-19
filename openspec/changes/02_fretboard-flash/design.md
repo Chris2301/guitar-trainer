@@ -41,8 +41,8 @@ interface FretNote {
   string: number;   // 1-6 (1 = high E, 6 = low E)
   fret: number;     // 0-15 (0 = open)
   note: string;     // 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B'
-  x: number;        // x position on fretboard image (px or %)
-  y: number;        // y position on fretboard image (px or %)
+  x: number;        // x position on fretboard image (%)
+  y: number;        // y position on fretboard image (%)
 }
 ```
 

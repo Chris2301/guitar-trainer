@@ -21,10 +21,12 @@
   pointer-events: none;
 }
 
+// Width is set as a percentage of the overlay container width via inline style.
+// aspect-ratio: 1 derives the height from that width, keeping the dot circular
+// and proportionally scaled at any screen size.
 .note-marker {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  aspect-ratio: 1;
   border-radius: 50%;
   background-color: #fd8d32;
   transform: translate(-50%, -50%);

@@ -9,4 +9,5 @@ import { FretNote } from '../note-data';
 })
 export class FretboardDisplayComponent {
   readonly note = input<FretNote | null>(null);
+  readonly markerSizePercent = 2;
 }
