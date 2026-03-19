@@ -15,6 +15,19 @@
       },
       "cost_usd": 2.7334006000000004,
       "completed": true
+    },
+    {
+      "iteration": 2,
+      "task_assigned": "- [ ] 1.2 Taiga UI installeren en configureren\n",
+      "duration_seconds": 721,
+      "tokens": {
+        "input": 38,
+        "output": 14638,
+        "cache_read": 1092209,
+        "total": 1106885
+      },
+      "cost_usd": 2.6637522000000002,
+      "completed": true
     }
   ]
 }
