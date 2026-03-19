@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { FretNote } from '../note-data';
 
 @Component({
   selector: 'app-fretboard-display',
@@ -6,4 +7,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrl: './fretboard-display.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FretboardDisplayComponent {}
+export class FretboardDisplayComponent {
+  readonly note = input<FretNote | null>(null);
+}

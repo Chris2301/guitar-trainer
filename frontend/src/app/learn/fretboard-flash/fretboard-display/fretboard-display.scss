@@ -20,3 +20,13 @@
   height: 100%;
   pointer-events: none;
 }
+
+.note-marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #fd8d32;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
