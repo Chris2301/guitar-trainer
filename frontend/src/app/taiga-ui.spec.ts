@@ -1,10 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app';
-import { RouterOutlet } from '@angular/router';
-import { By } from '@angular/platform-browser';
 import { appConfig } from './app.config';
 
-describe('AppComponent', () => {
+describe('Taiga UI Configuration', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
@@ -12,15 +10,18 @@ describe('AppComponent', () => {
     }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it('should wrap the application in tui-root', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    fixture.detectChanges();
+    const tuiRoot = fixture.nativeElement.querySelector('tui-root');
+    expect(tuiRoot).toBeTruthy();
   });
 
-  it('should contain a router-outlet', () => {
+  it('should render router-outlet inside tui-root', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const routerOutlet = fixture.debugElement.query(By.directive(RouterOutlet));
+    fixture.detectChanges();
+    const tuiRoot = fixture.nativeElement.querySelector('tui-root');
+    const routerOutlet = tuiRoot?.querySelector('router-outlet');
     expect(routerOutlet).toBeTruthy();
   });
 });
