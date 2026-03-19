@@ -145,6 +145,19 @@
       },
       "cost_usd": 1.49912205,
       "completed": true
+    },
+    {
+      "iteration": 12,
+      "task_assigned": "- [ ] 4.2 Write Playwright test: switching language shows translations in NL, DE, EN\n",
+      "duration_seconds": 1234,
+      "tokens": {
+        "input": 11,
+        "output": 2353,
+        "cache_read": 721300,
+        "total": 723664
+      },
+      "cost_usd": 5.466665299999998,
+      "completed": true
     }
   ]
 }
