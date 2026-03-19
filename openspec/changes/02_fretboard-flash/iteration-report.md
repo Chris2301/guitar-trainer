@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 2.2 Implement `FretboardDisplayComponent` — displays image with overlay container
+**From tasks.md:** 2.3 Note marker overlay — dot at x/y position (percentages) on top of the image
 
 ## Checklist
 ### 1. Understanding
@@ -8,7 +8,7 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Created a standalone Angular component with OnPush change detection that displays the fretboard SVG image inside a relative-positioned wrapper. An absolute-positioned overlay container with `<ng-content />` allows future note markers (task 2.3) to be projected on top of the image.
+**Approach:** Added a signal input `note` of type `FretNote | null` to the existing `FretboardDisplayComponent`. When a note is provided, an absolutely-positioned dot (`div.note-marker`) is rendered inside the overlay container at the note's x/y percentage coordinates using Angular style bindings. Also addressed previous review feedback: root-relative image path, class-based test assertions, and shared `beforeEach` setup.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
@@ -18,10 +18,10 @@
 **Test file(s):** `frontend/src/app/learn/fretboard-flash/fretboard-display/fretboard-display.spec.ts`
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — passed, no issues found
-- [x] `security-reviewer` — passed, no issues found
-- [x] `performance-reviewer` — passed, no issues found
-- [x] `architect-reviewer` — passed, 3 low-severity findings (relative image path, getComputedStyle in jsdom, test duplication)
+- [x] `codestyle-reviewer` — passed
+- [x] `security-reviewer` — passed
+- [x] `performance-reviewer` — passed
+- [x] `architect-reviewer` — passed (2 Low findings: ambiguous comment, hardcoded marker size — deferred to future tasks)
 
 ### 4. Engineer Assessment
 - [x] Engineer reviewed findings — Decision: ACCEPT
@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** d97cb11 feat: add FretboardDisplayComponent with image and overlay container
+**Commit:** 3927dff feat: add note marker overlay with percentage-based positioning
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
