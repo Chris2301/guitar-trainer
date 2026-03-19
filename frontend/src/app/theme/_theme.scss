@@ -1,0 +1,72 @@
+@use 'variables' as gt;
+
+// Light theme overrides for Taiga UI CSS custom properties
+[tuiTheme='light'] {
+  // Backgrounds
+  --tui-background-base: #{gt.$neutral-white};
+  --tui-background-base-alt: #{gt.$neutral-light};
+  --tui-background-accent-1: #{gt.$primary-blue};
+  --tui-background-accent-1-hover: #{gt.$primary-dark};
+  --tui-background-accent-1-pressed: #{gt.$primary-darker};
+  --tui-background-accent-2: #{gt.$accent-orange};
+  --tui-background-accent-2-hover: #{gt.$accent-orange-light};
+  --tui-background-accent-2-pressed: #{gt.$accent-orange};
+  --tui-background-elevation-1: #{gt.$neutral-white};
+  --tui-background-elevation-2: #{gt.$neutral-white};
+
+  // Text
+  --tui-text-primary: #{gt.$primary-darker};
+  --tui-text-secondary: #{gt.$primary-dark};
+  --tui-text-tertiary: #{gt.$neutral-mid};
+  --tui-text-action: #{gt.$primary-blue};
+  --tui-text-action-hover: #{gt.$primary-dark};
+
+  // Custom Guitar Trainer variables
+  --gt-primary: #{gt.$primary-blue};
+  --gt-primary-dark: #{gt.$primary-dark};
+  --gt-primary-darker: #{gt.$primary-darker};
+  --gt-accent: #{gt.$accent-orange};
+  --gt-accent-light: #{gt.$accent-orange-light};
+  --gt-neutral: #{gt.$neutral-light};
+  --gt-neutral-mid: #{gt.$neutral-mid};
+  --gt-text: #{gt.$primary-darker};
+  --gt-surface: #{gt.$neutral-white};
+}
+
+// Dark theme overrides for Taiga UI CSS custom properties
+[tuiTheme='dark'] {
+  // Backgrounds
+  --tui-background-base: #{gt.$primary-darker};
+  --tui-background-base-alt: #{gt.$primary-dark};
+  --tui-background-accent-1: #{gt.$primary-blue};
+  --tui-background-accent-1-hover: #{gt.$primary-blue-light};
+  --tui-background-accent-1-pressed: #{gt.$primary-dark};
+  --tui-background-accent-2: #{gt.$accent-orange};
+  --tui-background-accent-2-hover: #{gt.$accent-orange-light};
+  --tui-background-accent-2-pressed: #{gt.$accent-orange};
+  --tui-background-elevation-1: #{gt.$primary-dark};
+  --tui-background-elevation-2: #{gt.$dark-elevation-2};
+  --tui-background-elevation-3: #{gt.$primary-blue};
+
+  // Text
+  --tui-text-primary: #{gt.$neutral-white};
+  --tui-text-secondary: #{gt.$neutral-light};
+  --tui-text-tertiary: #{gt.$neutral-mid};
+  --tui-text-action: #{gt.$accent-orange-light};
+  --tui-text-action-hover: #{gt.$accent-orange};
+
+  // Borders
+  --tui-border-normal: #{gt.$dark-border-normal};
+  --tui-border-hover: #{gt.$dark-border-hover};
+
+  // Custom Guitar Trainer variables
+  --gt-primary: #{gt.$primary-blue};
+  --gt-primary-dark: #{gt.$primary-dark};
+  --gt-primary-darker: #{gt.$primary-darker};
+  --gt-accent: #{gt.$accent-orange};
+  --gt-accent-light: #{gt.$accent-orange-light};
+  --gt-neutral: #{gt.$dark-neutral-subtle};
+  --gt-neutral-mid: #{gt.$neutral-mid};
+  --gt-text: #{gt.$neutral-white};
+  --gt-surface: #{gt.$primary-dark};
+}

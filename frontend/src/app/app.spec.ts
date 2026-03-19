@@ -2,13 +2,18 @@ import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app';
 import { RouterOutlet } from '@angular/router';
 import { By } from '@angular/platform-browser';
+import { signal } from '@angular/core';
+import { TUI_DARK_MODE } from '@taiga-ui/core';
 import { appConfig } from './app.config';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      providers: [...appConfig.providers],
+      providers: [
+        ...appConfig.providers,
+        { provide: TUI_DARK_MODE, useValue: signal(false) },
+      ],
     }).compileComponents();
   });
 

@@ -1,3 +1,7 @@
-<tui-root>
+<!-- [attr.tuiTheme] is required because tui-root does not set the tuiTheme attribute
+     from TUI_DARK_MODE automatically. Taiga UI overlays (dropdowns, hints) read the
+     nearest [tuiTheme] ancestor to determine their appearance, and our custom CSS
+     variables in _theme.scss also depend on this attribute. -->
+<tui-root [attr.tuiTheme]="themeService.themeName()">
   <router-outlet />
 </tui-root>

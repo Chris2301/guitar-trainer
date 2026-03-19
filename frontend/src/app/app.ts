@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TuiRoot } from '@taiga-ui/core';
+import { ThemeService } from './theme';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +10,6 @@ import { TuiRoot } from '@taiga-ui/core';
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent {
+  protected readonly themeService = inject(ThemeService);
+}
