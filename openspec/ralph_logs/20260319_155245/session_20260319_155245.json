@@ -15,6 +15,19 @@
       },
       "cost_usd": 1.7196439000000008,
       "completed": true
+    },
+    {
+      "iteration": 2,
+      "task_assigned": "- [ ] 1.2 Create HomeComponent with hero section (free, ad-free, gamified guitar training)\n",
+      "duration_seconds": 1051,
+      "tokens": {
+        "input": 33,
+        "output": 9230,
+        "cache_read": 877537,
+        "total": 886800
+      },
+      "cost_usd": 3.3987984500000006,
+      "completed": true
     }
   ]
 }
