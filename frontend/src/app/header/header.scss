@@ -1,0 +1,106 @@
+@use '../theme/variables' as gt;
+
+:host {
+  display: block;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--gt-surface);
+  border-bottom: 1px solid var(--tui-border-normal, #{gt.$neutral-light});
+  max-width: 100%;
+
+  &__nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  &__link {
+    color: var(--gt-text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color gt.$transition-base;
+
+    &:hover {
+      color: var(--gt-accent);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__theme-toggle {
+    background: none;
+    border: 1px solid var(--tui-border-normal, #{gt.$neutral-light});
+    border-radius: gt.$border-radius;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+    color: var(--gt-text);
+    font-size: 1.1rem;
+    line-height: 1;
+    transition:
+      background gt.$transition-base,
+      border-color gt.$transition-base;
+
+    &:hover {
+      background: var(--gt-neutral);
+      border-color: var(--gt-accent);
+    }
+  }
+
+  &__theme-icon {
+    display: inline-block;
+  }
+
+  &__language-selector {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  &__language-option {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: gt.$border-radius;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    color: var(--gt-text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition:
+      color gt.$transition-base,
+      border-color gt.$transition-base,
+      background gt.$transition-base;
+
+    &:hover {
+      color: var(--gt-text);
+      border-color: var(--tui-border-normal, #{gt.$neutral-light});
+    }
+
+    &.active {
+      color: var(--gt-accent);
+      border-color: var(--gt-accent);
+      background: var(--gt-neutral);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 1rem;
+
+    &__nav {
+      gap: 1rem;
+    }
+
+    &__actions {
+      gap: 0.5rem;
+    }
+  }
+}

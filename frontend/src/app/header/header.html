@@ -1,0 +1,62 @@
+<header data-testid="app-header" class="header">
+  <nav class="header__nav">
+    <a
+      data-testid="nav-home"
+      class="header__link"
+      routerLink="/"
+      i18n="Navigation home link@@nav.home"
+    >Home</a>
+    <a
+      data-testid="nav-learn"
+      class="header__link"
+      routerLink="/learn"
+      i18n="Navigation learn link@@nav.learn"
+    >Learn</a>
+  </nav>
+
+  <div class="header__actions">
+    <button
+      data-testid="theme-toggle"
+      class="header__theme-toggle"
+      type="button"
+      (click)="themeService.toggleTheme()"
+      [attr.aria-label]="
+        isDark()
+          ? 'Switch to light theme'
+          : 'Switch to dark theme'
+      "
+    >
+      @if (isDark()) {
+        <span aria-hidden="true" class="header__theme-icon">
+          &#9788;
+        </span>
+      } @else {
+        <span aria-hidden="true" class="header__theme-icon">
+          &#9790;
+        </span>
+      }
+    </button>
+
+    <div
+      data-testid="language-selector"
+      class="header__language-selector"
+      role="group"
+      aria-label="Language selector"
+      i18n-aria-label="Language selector aria label@@header.languageSelector.ariaLabel"
+    >
+      @for (lang of languages; track lang) {
+        <button
+          data-testid="language-option"
+          class="header__language-option"
+          [class.active]="lang === activeLanguage()"
+          type="button"
+          (click)="selectLanguage(lang)"
+          [attr.aria-label]="lang"
+          [attr.aria-pressed]="lang === activeLanguage()"
+        >
+          {{ lang }}
+        </button>
+      }
+    </div>
+  </div>
+</header>
