@@ -22,7 +22,7 @@ The WHAT
 - [x] 3.4 `FretboardFlashPageComponent` — composition of note display, fretboard and game controls
 
 ## 4. Navigation and Routing
-- [ ] 4.1 Lazy-loaded child route `/learn/fretboard-flash`
+- [x] 4.1 Lazy-loaded child route `/learn/fretboard-flash`
 - [ ] 4.2 Button/card on Learn page linking to Fretboard Flash
 - [ ] 4.3 i18n labels for all UI text (NL/DE/EN)
 

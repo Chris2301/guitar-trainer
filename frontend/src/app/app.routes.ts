@@ -7,7 +7,7 @@ export const routes: Routes = [
   },
   {
     path: 'learn',
-    loadComponent: () => import('./learn/learn').then((m) => m.LearnComponent),
+    loadChildren: () => import('./learn/learn.routes').then((m) => m.learnRoutes),
   },
   {
     path: '**',
