@@ -1,10 +1,51 @@
 #!/usr/bin/env bash
-set -e
+set -eo pipefail
 
 REPO_URL="${REPO_URL:?REPO_URL must be set}"
 REPO_DIR=/workspace/repo
+HOST_LOG_DIR=/workspace/logs
+
+# Tee all stdout/stderr to a persistent log file on the mounted volume
+RUN_LOG="$HOST_LOG_DIR/ralph-run-$(date +%Y%m%d-%H%M%S).log"
+exec > >(tee -a "$RUN_LOG") 2>&1
 
 echo "Starting Ralph autonomous loop"
+echo "Persistent log: $RUN_LOG"
+
+# Graceful shutdown: push current branch state before exiting
+CURRENT_BRANCH=""
+cleanup() {
+    local exit_code=$?
+    echo ""
+    echo "Caught shutdown signal (exit code: $exit_code)"
+
+    # Kill heartbeat if running
+    kill $HEARTBEAT_PID 2>/dev/null || true
+
+    if [ -n "$CURRENT_BRANCH" ] && [ -d "$REPO_DIR/.git" ]; then
+        cd "$REPO_DIR"
+        echo "Saving state before exit..."
+
+        # Commit any uncommitted work
+        git add . 2>/dev/null || true
+        git diff --cached --quiet 2>/dev/null || \
+            git commit -m "Ralph: auto-save on shutdown ($(date -Iseconds))" 2>/dev/null || true
+
+        # Push current branch so work is not lost
+        echo "Pushing $CURRENT_BRANCH to origin..."
+        git push origin "$CURRENT_BRANCH" 2>/dev/null || \
+            echo "WARNING: failed to push $CURRENT_BRANCH on shutdown"
+    fi
+
+    # Copy session logs to host volume
+    if [ -d "$REPO_DIR/openspec/ralph_logs" ]; then
+        cp -r "$REPO_DIR/openspec/ralph_logs/"* "$HOST_LOG_DIR/" 2>/dev/null || true
+    fi
+
+    echo "Shutdown complete."
+    exit $exit_code
+}
+trap cleanup SIGTERM SIGINT EXIT
 
 # Clone fresh copy inside container
 if [ ! -d "$REPO_DIR/.git" ]; then
@@ -178,6 +219,7 @@ git pull origin develop
 
 RUN_BRANCH="ralph/run-$(date +%Y%m%d-%H%M%S)"
 git checkout -b "$RUN_BRANCH"
+CURRENT_BRANCH="$RUN_BRANCH"
 
 echo "Created run branch: $RUN_BRANCH"
 
@@ -212,6 +254,7 @@ while true; do
   fi
 
   git checkout -b "$BRANCH"
+  CURRENT_BRANCH="$BRANCH"
 
   # Initialize session log for this feature
   init_session_log "$FEATURE"
@@ -303,6 +346,9 @@ Replace all \`<FEATURE>\`, \`<FEATURE_DIR>\`, \`<TASK>\`, and \`<FEEDBACK_FILE>\
           git add openspec/ralph_logs/
           git commit -m "Ralph: save logs for failed iteration $ITERATION of $FEATURE"
           git push origin "$BRANCH"
+
+          # Copy logs to host volume so they survive container removal
+          cp -r "$LOG_DIR/"* "$HOST_LOG_DIR/" 2>/dev/null || true
           exit 1
       fi
 
@@ -318,10 +364,17 @@ Replace all \`<FEATURE>\`, \`<FEATURE_DIR>\`, \`<TASK>\`, and \`<FEEDBACK_FILE>\
 
       git commit -m "Ralph: completed task for $FEATURE"
 
+      # Push after each task so work is never lost
+      echo "Pushing $BRANCH after task completion..."
+      git push origin "$BRANCH" || echo "WARNING: push failed after task, will retry at end"
+
   done
 
   # Finalize session log for this feature
   finalize_session_log
+
+  # Copy logs to host volume so they survive container removal
+  cp -r "$LOG_DIR/"* "$HOST_LOG_DIR/" 2>/dev/null || true
 
   # Commit finalized session log before switching branches
   git add openspec/ralph_logs/
@@ -417,6 +470,7 @@ Replace all \`<FEATURE>\`, \`<FEATURE_DIR>\`, \`<TASK>\`, and \`<FEEDBACK_FILE>\
   echo "Merging $BRANCH into run branch $RUN_BRANCH"
 
   git checkout "$RUN_BRANCH"
+  CURRENT_BRANCH="$RUN_BRANCH"
   git merge "$BRANCH" --no-edit
 
   git push origin "$RUN_BRANCH"

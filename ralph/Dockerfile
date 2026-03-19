@@ -34,7 +34,7 @@ RUN mkdir -p /home/ralph/.ssh \
 
 # Claude config dir and workspace owned by ralph
 RUN mkdir -p /home/ralph/.claude && chown ralph:ralph /home/ralph/.claude
-RUN mkdir -p /workspace && chown ralph:ralph /workspace
+RUN mkdir -p /workspace /workspace/logs && chown -R ralph:ralph /workspace
 
 WORKDIR /workspace
 
