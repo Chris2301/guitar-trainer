@@ -4,7 +4,7 @@ The WHAT
 # **Critical: TDD approach - tests first!**
 
 ## 1. Note Data and Progression
-- [ ] 1.1 Define `FretNote` interface and static note data for all natural notes on fret 0-15
+- [x] 1.1 Define `FretNote` interface and static note data for all natural notes on fret 0-15
 - [ ] 1.2 Implement `NoteDataService` that can filter notes by fret range
 - [ ] 1.3 Implement `ProgressionService` — manages current note pool, starts with open strings, expands per fret
 - [ ] 1.4 Logic for pool expansion: track which notes have been shown, expand when all current pool notes have been seen at least once
