@@ -2,30 +2,103 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="de" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="app.title" datatype="plaintext">
+      <trans-unit id="app.title" datatype="html">
         <source>Guitar Trainer</source>
         <target>Gitarrentrainer</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.html</context>
-          <context context-type="linenumber">6,9</context>
-        </context-group>
         <note priority="1" from="description">Application title</note>
       </trans-unit>
-      <trans-unit id="html.lang" datatype="plaintext">
+      <trans-unit id="html.lang" datatype="html">
         <source>en</source>
         <target>de</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/index.html</context>
-          <context context-type="linenumber">2</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="page.title" datatype="plaintext">
+      <trans-unit id="page.title" datatype="html">
         <source>GuitarTrainer</source>
         <target>Gitarrentrainer</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/index.html</context>
-          <context context-type="linenumber">5</context>
-        </context-group>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+        <target>Startseite</target>
+        <note priority="1" from="description">Navigation home link</note>
+      </trans-unit>
+      <trans-unit id="nav.learn" datatype="html">
+        <source>Learn</source>
+        <target>Lernen</target>
+        <note priority="1" from="description">Navigation learn link</note>
+      </trans-unit>
+      <trans-unit id="header.languageSelector.ariaLabel" datatype="html">
+        <source>Language selector</source>
+        <target>Sprachauswahl</target>
+        <note priority="1" from="description">Language selector aria label</note>
+      </trans-unit>
+      <trans-unit id="home.hero.tagline" datatype="html">
+        <source> Free, ad-free, gamified guitar training </source>
+        <target> Kostenlos, werbefrei, spielerisches Gitarrentraining </target>
+        <note priority="1" from="description">Hero tagline</note>
+      </trans-unit>
+      <trans-unit id="home.hero.subtitle" datatype="html">
+        <source> Master the fretboard with interactive exercises — no cost, no ads, just music. </source>
+        <target> Meistere das Griffbrett mit interaktiven Aufgaben — kostenlos, werbefrei, nur Musik. </target>
+        <note priority="1" from="description">Hero subtitle</note>
+      </trans-unit>
+      <trans-unit id="home.features.heading" datatype="html">
+        <source>What you will learn</source>
+        <target>Was du lernen wirst</target>
+        <note priority="1" from="description">Features heading</note>
+      </trans-unit>
+      <trans-unit id="home.feature.fretboard.title" datatype="html">
+        <source>Fretboard Visualization</source>
+        <target>Griffbrett-Visualisierung</target>
+        <note priority="1" from="description">Feature title fretboard</note>
+      </trans-unit>
+      <trans-unit id="home.feature.fretboard.description" datatype="html">
+        <source>Explore an interactive fretboard that shows notes and chords across all positions.</source>
+        <target>Erkunde ein interaktives Griffbrett, das Noten und Akkorde an allen Positionen zeigt.</target>
+        <note priority="1" from="description">Feature description fretboard</note>
+      </trans-unit>
+      <trans-unit id="home.feature.quiz.title" datatype="html">
+        <source>Quiz Mode</source>
+        <target>Quizmodus</target>
+        <note priority="1" from="description">Feature title quiz</note>
+      </trans-unit>
+      <trans-unit id="home.feature.quiz.description" datatype="html">
+        <source>Test your knowledge with gamified quiz exercises — identify notes, intervals and chords.</source>
+        <target>Teste dein Wissen mit spielerischen Quiz-Aufgaben — erkenne Noten, Intervalle und Akkorde.</target>
+        <note priority="1" from="description">Feature description quiz</note>
+      </trans-unit>
+      <trans-unit id="home.feature.warmup.title" datatype="html">
+        <source>Warm-up Games</source>
+        <target>Aufwärmspiele</target>
+        <note priority="1" from="description">Feature title warmup</note>
+      </trans-unit>
+      <trans-unit id="home.feature.warmup.description" datatype="html">
+        <source>Start every practice session with quick warm-up exercises to get your fingers moving.</source>
+        <target>Starte jede Übungssitzung mit schnellen Aufwärmübungen, um deine Finger in Bewegung zu bringen.</target>
+        <note priority="1" from="description">Feature description warmup</note>
+      </trans-unit>
+      <trans-unit id="home.feature.progress.title" datatype="html">
+        <source>Track Your Progress</source>
+        <target>Fortschritt verfolgen</target>
+        <note priority="1" from="description">Feature title progress</note>
+      </trans-unit>
+      <trans-unit id="home.feature.progress.description" datatype="html">
+        <source>See how you improve over time with progression tracking across all exercises.</source>
+        <target>Sieh, wie du dich im Laufe der Zeit verbesserst, mit Fortschrittsverfolgung für alle Aufgaben.</target>
+        <note priority="1" from="description">Feature description progress</note>
+      </trans-unit>
+      <trans-unit id="home.cta.startLearning" datatype="html">
+        <source> Start Learning </source>
+        <target> Jetzt loslegen </target>
+        <note priority="1" from="description">CTA button</note>
+      </trans-unit>
+      <trans-unit id="learn.heading" datatype="html">
+        <source>Learn</source>
+        <target>Lernen</target>
+        <note priority="1" from="description">Learn page heading</note>
+      </trans-unit>
+      <trans-unit id="learn.placeholder" datatype="html">
+        <source> Training exercises are coming soon. Check back later for interactive fretboard exercises, quizzes and warm-up games. </source>
+        <target> Trainingsaufgaben kommen bald. Schau später wieder vorbei für interaktive Griffbrett-Aufgaben, Quizze und Aufwärmspiele. </target>
+        <note priority="1" from="description">Learn page placeholder</note>
       </trans-unit>
     </body>
   </file>

@@ -2,30 +2,103 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" target-language="nl" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="app.title" datatype="plaintext">
+      <trans-unit id="app.title" datatype="html">
         <source>Guitar Trainer</source>
         <target>Gitaartrainer</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.html</context>
-          <context context-type="linenumber">6,9</context>
-        </context-group>
         <note priority="1" from="description">Application title</note>
       </trans-unit>
-      <trans-unit id="html.lang" datatype="plaintext">
+      <trans-unit id="html.lang" datatype="html">
         <source>en</source>
         <target>nl</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/index.html</context>
-          <context context-type="linenumber">2</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="page.title" datatype="plaintext">
+      <trans-unit id="page.title" datatype="html">
         <source>GuitarTrainer</source>
         <target>Gitaartrainer</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/index.html</context>
-          <context context-type="linenumber">5</context>
-        </context-group>
+      </trans-unit>
+      <trans-unit id="nav.home" datatype="html">
+        <source>Home</source>
+        <target>Home</target>
+        <note priority="1" from="description">Navigation home link</note>
+      </trans-unit>
+      <trans-unit id="nav.learn" datatype="html">
+        <source>Learn</source>
+        <target>Leren</target>
+        <note priority="1" from="description">Navigation learn link</note>
+      </trans-unit>
+      <trans-unit id="header.languageSelector.ariaLabel" datatype="html">
+        <source>Language selector</source>
+        <target>Taalkeuze</target>
+        <note priority="1" from="description">Language selector aria label</note>
+      </trans-unit>
+      <trans-unit id="home.hero.tagline" datatype="html">
+        <source> Free, ad-free, gamified guitar training </source>
+        <target> Gratis, zonder reclame, gegamificeerde gitaartraining </target>
+        <note priority="1" from="description">Hero tagline</note>
+      </trans-unit>
+      <trans-unit id="home.hero.subtitle" datatype="html">
+        <source> Master the fretboard with interactive exercises — no cost, no ads, just music. </source>
+        <target> Beheers het toetsenbord met interactieve oefeningen — geen kosten, geen reclame, alleen muziek. </target>
+        <note priority="1" from="description">Hero subtitle</note>
+      </trans-unit>
+      <trans-unit id="home.features.heading" datatype="html">
+        <source>What you will learn</source>
+        <target>Wat je gaat leren</target>
+        <note priority="1" from="description">Features heading</note>
+      </trans-unit>
+      <trans-unit id="home.feature.fretboard.title" datatype="html">
+        <source>Fretboard Visualization</source>
+        <target>Fretboard visualisatie</target>
+        <note priority="1" from="description">Feature title fretboard</note>
+      </trans-unit>
+      <trans-unit id="home.feature.fretboard.description" datatype="html">
+        <source>Explore an interactive fretboard that shows notes and chords across all positions.</source>
+        <target>Verken een interactief fretboard dat noten en akkoorden toont op alle posities.</target>
+        <note priority="1" from="description">Feature description fretboard</note>
+      </trans-unit>
+      <trans-unit id="home.feature.quiz.title" datatype="html">
+        <source>Quiz Mode</source>
+        <target>Quizmodus</target>
+        <note priority="1" from="description">Feature title quiz</note>
+      </trans-unit>
+      <trans-unit id="home.feature.quiz.description" datatype="html">
+        <source>Test your knowledge with gamified quiz exercises — identify notes, intervals and chords.</source>
+        <target>Test je kennis met gegamificeerde quizoefeningen — herken noten, intervallen en akkoorden.</target>
+        <note priority="1" from="description">Feature description quiz</note>
+      </trans-unit>
+      <trans-unit id="home.feature.warmup.title" datatype="html">
+        <source>Warm-up Games</source>
+        <target>Opwarmspellen</target>
+        <note priority="1" from="description">Feature title warmup</note>
+      </trans-unit>
+      <trans-unit id="home.feature.warmup.description" datatype="html">
+        <source>Start every practice session with quick warm-up exercises to get your fingers moving.</source>
+        <target>Begin elke oefensessie met snelle opwarmoefeningen om je vingers los te maken.</target>
+        <note priority="1" from="description">Feature description warmup</note>
+      </trans-unit>
+      <trans-unit id="home.feature.progress.title" datatype="html">
+        <source>Track Your Progress</source>
+        <target>Volg je voortgang</target>
+        <note priority="1" from="description">Feature title progress</note>
+      </trans-unit>
+      <trans-unit id="home.feature.progress.description" datatype="html">
+        <source>See how you improve over time with progression tracking across all exercises.</source>
+        <target>Bekijk hoe je in de loop der tijd verbetert met voortgangsregistratie voor alle oefeningen.</target>
+        <note priority="1" from="description">Feature description progress</note>
+      </trans-unit>
+      <trans-unit id="home.cta.startLearning" datatype="html">
+        <source> Start Learning </source>
+        <target> Begin met leren </target>
+        <note priority="1" from="description">CTA button</note>
+      </trans-unit>
+      <trans-unit id="learn.heading" datatype="html">
+        <source>Learn</source>
+        <target>Leren</target>
+        <note priority="1" from="description">Learn page heading</note>
+      </trans-unit>
+      <trans-unit id="learn.placeholder" datatype="html">
+        <source> Training exercises are coming soon. Check back later for interactive fretboard exercises, quizzes and warm-up games. </source>
+        <target> Trainingsoefeningen komen binnenkort. Kom later terug voor interactieve fretboard-oefeningen, quizzen en opwarmspellen. </target>
+        <note priority="1" from="description">Learn page placeholder</note>
       </trans-unit>
     </body>
   </file>

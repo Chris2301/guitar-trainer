@@ -2,20 +2,24 @@ import { TestBed } from '@angular/core/testing';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { TUI_DARK_MODE } from '@taiga-ui/core';
-import { HeaderComponent } from './header';
+import { HeaderComponent, NAVIGATE_FN, NavigateFn } from './header';
 import { ThemeService } from '../theme';
+import { vi } from 'vitest';
 
 describe('HeaderComponent', () => {
   let darkModeSignal: WritableSignal<boolean>;
+  let navigateSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     darkModeSignal = signal(false);
+    navigateSpy = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
         provideRouter([]),
         { provide: TUI_DARK_MODE, useValue: darkModeSignal },
+        { provide: NAVIGATE_FN, useValue: navigateSpy },
       ],
     }).compileComponents();
   });
@@ -82,7 +86,7 @@ describe('HeaderComponent', () => {
     );
     expect(options.length).toBe(3);
 
-    const labels = Array.from(options).map((o: any) => o.textContent.trim());
+    const labels = Array.from<Element>(options).map((o) => o.textContent!.trim());
     expect(labels).toContain('NL');
     expect(labels).toContain('DE');
     expect(labels).toContain('EN');
@@ -99,25 +103,38 @@ describe('HeaderComponent', () => {
     expect(activeOption.textContent.trim()).toBe('EN');
   });
 
-  it('should update active language when a language button is clicked', () => {
+  it('should navigate to the locale URL when a different language is clicked', () => {
     const fixture = TestBed.createComponent(HeaderComponent);
     fixture.detectChanges();
 
     const options = fixture.nativeElement.querySelectorAll(
       '[data-testid="language-option"]',
     );
-    const nlButton = Array.from(options).find(
-      (o: any) => o.textContent.trim() === 'NL',
+    const nlButton = Array.from<Element>(options).find(
+      (o) => o.textContent!.trim() === 'NL',
     ) as HTMLButtonElement;
 
     nlButton.click();
     fixture.detectChanges();
 
-    const activeOption = fixture.nativeElement.querySelector(
-      '[data-testid="language-option"].active',
+    expect(navigateSpy).toHaveBeenCalledWith('/nl/');
+  });
+
+  it('should not navigate when the already active language is clicked', () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    fixture.detectChanges();
+
+    const options = fixture.nativeElement.querySelectorAll(
+      '[data-testid="language-option"]',
     );
-    expect(activeOption).toBeTruthy();
-    expect(activeOption.textContent.trim()).toBe('NL');
+    const enButton = Array.from<Element>(options).find(
+      (o) => o.textContent!.trim() === 'EN',
+    ) as HTMLButtonElement;
+
+    enButton.click();
+    fixture.detectChanges();
+
+    expect(navigateSpy).not.toHaveBeenCalled();
   });
 
   it('should link Home to the root route', () => {

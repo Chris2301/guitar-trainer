@@ -33,12 +33,36 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      // i18n tests (filenames matching "language-switching") require the multi-locale
+      // server on port 4201, so they are excluded from this project.
+      testIgnore: /language-switching/,
+    },
+    {
+      name: 'i18n',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:4201',
+      },
+      // Only run tests whose filenames match "language-switching". These tests
+      // require the i18n static server (port 4201) that serves locale-prefixed
+      // builds (/en/, /nl/, /de/). Any new i18n E2E test file must include
+      // "language-switching" in its filename to be picked up by this project.
+      testMatch: /language-switching/,
     },
   ],
-  webServer: {
-    command: 'npm run start',
-    url: 'http://localhost:4200',
-    reuseExistingServer: !process.env['CI'],
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: 'npm run start',
+      url: 'http://localhost:4200',
+      reuseExistingServer: !process.env['CI'],
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run serve:i18n',
+      url: 'http://localhost:4201',
+      reuseExistingServer: !process.env['CI'],
+      stdout: 'pipe',
+      timeout: 10_000,
+    },
+  ],
 });
