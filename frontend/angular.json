@@ -16,6 +16,13 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": "en",
+        "locales": {
+          "nl": "src/locale/messages.nl.xlf",
+          "de": "src/locale/messages.de.xlf"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -29,12 +36,12 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"],
+            "polyfills": ["@angular/localize/init"]
           },
           "configurations": {
             "production": {
+              "localize": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -53,6 +60,18 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "nl": {
+              "localize": ["nl"],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
+            "de": {
+              "localize": ["de"],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
             }
           },
           "defaultConfiguration": "production"
@@ -65,9 +84,22 @@
             },
             "development": {
               "buildTarget": "guitar-trainer:build:development"
+            },
+            "nl": {
+              "buildTarget": "guitar-trainer:build:nl"
+            },
+            "de": {
+              "buildTarget": "guitar-trainer:build:de"
             }
           },
           "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "outputPath": "src/locale",
+            "format": "xlf"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"
