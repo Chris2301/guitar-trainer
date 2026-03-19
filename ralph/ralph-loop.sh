@@ -19,9 +19,6 @@ cleanup() {
     echo ""
     echo "Caught shutdown signal (exit code: $exit_code)"
 
-    # Kill heartbeat if running
-    kill $HEARTBEAT_PID 2>/dev/null || true
-
     if [ -n "$CURRENT_BRANCH" ] && [ -d "$REPO_DIR/.git" ]; then
         cd "$REPO_DIR"
         echo "Saving state before exit..."
@@ -286,10 +283,6 @@ while true; do
 
       FEATURE_DIR="openspec/changes/$FEATURE"
 
-      # Heartbeat: print timestamp every 10s so we know it's alive
-      ( while true; do sleep 10; echo "[heartbeat] $(date -Iseconds) — iteration $ITERATION still running..."; done ) &
-      HEARTBEAT_PID=$!
-
       FEEDBACK_FILE="$FEATURE_DIR/review-feedback.md"
 
       # Run claude with stream-json output, save raw output and display live
@@ -310,8 +303,6 @@ Replace all \`<FEATURE>\`, \`<FEATURE_DIR>\`, \`<TASK>\`, and \`<FEEDBACK_FILE>\
         2>&1 | tee "$RAW_OUTPUT" | while IFS= read -r line; do
           display_stream_line "$line"
         done
-
-      kill $HEARTBEAT_PID 2>/dev/null || true
 
       ITER_DURATION=$(( $(date +%s) - ITER_START ))
 
