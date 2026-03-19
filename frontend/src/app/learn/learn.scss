@@ -21,14 +21,57 @@
     letter-spacing: -0.02em;
   }
 
-  &__placeholder {
-    font-size: gt.$subtitle-font-size;
+  &__exercises {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: gt.$feature-grid-gap;
+    max-width: gt.$max-width;
+    margin: 0 auto;
+  }
+
+  &__card {
+    display: block;
+    background: var(--gt-surface);
+    border-radius: gt.$border-radius;
+    padding: gt.$card-padding;
+    box-shadow: var(--gt-card-shadow);
+    text-decoration: none;
+    text-align: left;
+    transition:
+      transform gt.$transition-base,
+      box-shadow gt.$transition-base;
+    animation: fadeInUp 0.6s ease-out both;
+    animation-delay: 0.15s;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--gt-card-shadow-hover);
+    }
+
+    &:active {
+      transform: translateY(-1px);
+    }
+  }
+
+  &__card-icon {
+    font-size: gt.$feature-icon-size;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  &__card-title {
+    font-size: gt.$feature-title-size;
+    font-weight: 700;
+    color: var(--gt-text);
+    margin: 0 0 0.75rem;
+  }
+
+  &__card-description {
     color: var(--gt-text-secondary);
     margin: 0;
     line-height: 1.7;
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: gt.$feature-description-size;
   }
 }
 
@@ -40,8 +83,9 @@
       font-size: gt.$hero-font-size-mobile;
     }
 
-    &__placeholder {
-      font-size: 1.1rem;
+    &__exercises {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
   }
 }

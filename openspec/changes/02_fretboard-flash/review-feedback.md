@@ -1,82 +1,72 @@
-# Review Feedback — Task 4.1: Lazy-loaded child route `/learn/fretboard-flash`
+# Review Feedback — Task 4.2: Button/card on Learn page linking to Fretboard Flash
 ## Status: PASS
 ## Findings
 
 ### codestyle-reviewer
 - **Severity**: Medium
-- **Finding**: `LearnComponent` and `FretboardFlashPageComponent` are missing `standalone: true` in their `@Component` decorators. Required for standalone components that use `imports` array.
-- **Fix**: Add `standalone: true` to both component decorators.
+- **Finding**: In the mobile media query, `gap: 1.5rem;` is hardcoded instead of using `gt.$feature-grid-gap` like the desktop version and `home.scss`.
+- **Fix**: Change `gap: 1.5rem;` to `gap: gt.$feature-grid-gap;` in the mobile media query.
 
 - **Severity**: Low
-- **Finding**: `export type` change for `NaturalNote`/`FretNote` in `index.ts` is correct and consistent.
-- **Fix**: No action needed — confirmed correct.
+- **Finding**: E2E test name is somewhat generic ("should display exercises and allow navigation...") when it specifically tests the Fretboard Flash card.
+- **Fix**: Rename test to be more specific.
+
+- **Severity**: Low
+- **Finding**: Each unit test creates its own fixture independently. Acceptable pattern but slightly inefficient.
+- **Fix**: No fix required.
 
 ### security-reviewer
-- **Severity**: High
-- **Finding**: No route guards on `/learn` or `/learn/fretboard-flash` — unauthenticated access possible.
-- **Fix**: Add `canActivate` guard at the parent route level in `app.routes.ts`.
-
-- **Severity**: Low
-- **Finding**: Test file eagerly imports `FretboardFlashPageComponent`, bypassing lazy-load isolation. Does not verify guard invocation.
-- **Fix**: Remove direct import and assert on URL/DOM instead of `instanceof`.
+No issues found.
 
 ### performance-reviewer
-- **Severity**: Medium (Warning)
-- **Finding**: Test file imports `FretboardFlashPageComponent` via barrel file (`./learn/fretboard-flash`), eagerly pulling in the entire feature module graph at test compile time. Defeats lazy-load verification.
-- **Fix**: Remove static import; assert on `router.url` only, or import directly from the component file instead of the barrel.
+- **Severity**: Low (Info)
+- **Finding**: Duplicate `fadeInUp` animation on both `.learn` section and `.learn__card` causes unnecessary compositor layer promotion. Minor overhead that compounds as more cards are added.
+- **Fix**: Remove `animation` from `.learn__card` or defer per-card animation until many cards exist.
 
 - **Severity**: Medium (Warning)
-- **Finding**: Barrel file (`index.ts`) exports `FretboardFlashPageComponent` as a value export. Any static import from the barrel collapses the lazy boundary.
-- **Fix**: Consider not exporting `FretboardFlashPageComponent` from the barrel — it should only be referenced by the route definition's dynamic import.
+- **Finding**: `prefers-reduced-motion` is not respected. Neither `_animations.scss` nor `learn.scss` wraps animations in a reduced-motion media query.
+- **Fix**: Add `@media (prefers-reduced-motion: reduce)` suppression rule globally in `_animations.scss`.
 
 - **Severity**: Low (Info)
-- **Finding**: Route structure with `loadChildren` + per-route `loadComponent` is correct and produces proper chunk splitting. Confirmed working.
-- **Fix**: No action needed.
+- **Finding**: `:hover` `transform: translateY(-4px)` without `will-change: transform` may cause first-hover jank.
+- **Fix**: Add `will-change: transform` to `.learn__card`.
 
 ### architect-reviewer
 - **Severity**: Medium (Warning)
-- **Finding**: Test eagerly imports the page component, making the "lazy-load" test assertion meaningless. The test title says "should lazy-load" but the import defeats that verification.
-- **Fix**: Remove the import and assert on component selector or `router.url` instead of `toBeInstanceOf`.
+- **Finding**: Placeholder text ("Training exercises are coming soon...") still renders alongside the live exercise card, which is contradictory.
+- **Fix**: Remove the placeholder paragraph now that an exercise exists, or gate it behind a condition.
+
+- **Severity**: Medium (Warning)
+- **Finding**: Exercise cards are hardcoded in the template. Won't scale as more exercises are added.
+- **Fix**: Define a typed exercise metadata array in the component class and render with `@for`.
 
 - **Severity**: Low (Suggestion)
-- **Finding**: Route import path in `learn.routes.ts` goes two levels deep (`./fretboard-flash/fretboard-flash-page/fretboard-flash-page`) instead of using the barrel.
-- **Fix**: Use `import('./fretboard-flash').then((m) => m.FretboardFlashPageComponent)` for consistency.
-
-- **Severity**: Low (Suggestion)
-- **Finding**: `export type` tightening in `index.ts` is correct.
-- **Fix**: No action needed.
+- **Finding**: The `i18n` attribute-based extraction approach won't work with data-driven rendering if cards become dynamic later.
+- **Fix**: No action now; flag for future if data-driven approach is adopted.
 
 ## Engineer Assessment
-
-### Overall Decision: ACCEPT
-
+### Overall Decision: REFACTOR
 ### Reasoning per finding
 
-#### codestyle-reviewer — Missing `standalone: true` in component decorators
-- **Decision**: Accept (false positive)
-- **Reasoning**: Since Angular v19, `standalone: true` is the default for components. This project uses Angular v21.2 (`@angular/core: ^21.2.0`). No component in the entire codebase specifies `standalone: true`, yet they all work correctly with `imports` arrays (see `AppComponent`, `HeaderComponent`, `FretboardFlashPageComponent`). Adding `standalone: true` would be redundant noise. The reviewer was applying pre-v19 conventions to a v21 codebase.
+#### codestyle-reviewer — Hardcoded gap in mobile media query
+- **Decision**: Accept
+- **Reasoning**: This is a false positive. The reviewer claims `home.scss` uses `gt.$feature-grid-gap` in the mobile media query, but inspection of `home.scss` line 190 shows it also uses `gap: 1.5rem;` hardcoded. Both files follow the same pattern: `$feature-grid-gap` (2rem) on desktop, `1.5rem` on mobile. The mobile value is intentionally different from the variable — it is a deliberate mobile override, not an inconsistency. Changing it to use the variable would actually make the mobile gap 2rem, which is wider than intended.
 
-#### security-reviewer — No route guards, unauthenticated access possible
-- **Decision**: Accept (false positive)
-- **Reasoning**: This is a free, public guitar learning tool with no authentication, no user accounts, no backend, and no sensitive data. It is hosted as a static SPA on Cloudflare Pages. Every route is intentionally publicly accessible. Adding route guards would be security theater with zero benefit. The `project.md` explicitly states "Geen backend -- pure frontend applicatie" and the vision is a "gratis, advertentievrije webapplicatie." There is nothing to guard.
+#### architect-reviewer — Contradictory placeholder text
+- **Decision**: Fix
+- **Reasoning**: This is a valid finding. The placeholder says "Training exercises are coming soon" while a live exercise card is displayed right below it. This is contradictory and confusing for users. The placeholder text should be removed or updated now that actual content exists. This is a real UX bug, not a style nit.
 
-#### performance-reviewer — Test file imports via barrel, defeating lazy-load verification
-- **Decision**: Accept (low practical impact)
-- **Reasoning**: This is a valid observation: the test statically imports `FretboardFlashPageComponent` from the barrel, which means the test does not truly verify lazy loading in isolation. However, this only affects the test compilation graph, not the production bundle. The production lazy loading is correctly configured via `loadChildren` + `loadComponent` with dynamic imports, which the performance reviewer confirmed is working. The test still validates that the route configuration maps the correct component to the correct URL. Improving the test assertion style (using `router.url` or DOM selectors instead of `toBeInstanceOf`) would be a nice cleanup but does not fix a bug or prevent a real issue.
+#### architect-reviewer — Hardcoded exercise cards in template
+- **Decision**: Accept (YAGNI)
+- **Reasoning**: There is currently exactly one exercise. Introducing a typed metadata array, data-driven rendering, and an `@for` loop for a single card adds complexity with no current benefit. When a second exercise is added, this refactor becomes worthwhile and can be done at that time. Premature abstraction creates more maintenance burden than it saves.
 
-#### performance-reviewer — Barrel exports page component, collapsing lazy boundary
-- **Decision**: Accept (low practical impact)
-- **Reasoning**: The barrel export of `FretboardFlashPageComponent` is only consumed by the test file. The route definition in `learn.routes.ts` correctly uses a direct deep import path, not the barrel. So the production lazy boundary is intact. Removing the export from the barrel would be marginally cleaner but would require changing the test import path, which is a coupled change for minimal benefit.
-
-#### architect-reviewer — Test title says "lazy-load" but import defeats verification
-- **Decision**: Accept (cosmetic)
-- **Reasoning**: The test name is slightly misleading since the static import means it is not truly verifying lazy loading behavior. However, the test still verifies the route configuration is correct (navigating to `/learn/fretboard-flash` activates the right component). Renaming the test or changing the assertion style would be a minor improvement but does not warrant a refactor cycle.
+#### performance-reviewer — prefers-reduced-motion not respected
+- **Decision**: Defer
+- **Reasoning**: This is a legitimate accessibility concern, but it is a global issue affecting `_animations.scss` and every component that uses `fadeInUp` (including `home.scss` which has the same pattern). Fixing it in this task's scope would mean changing global animation infrastructure as a side effect of adding a card to the Learn page. This should be tracked as a separate accessibility task that addresses all animations consistently, not bolted onto a feature task.
 
 #### Low-severity / Nitpick findings
-- **codestyle-reviewer** `export type` correctness: Confirmed correct, no action needed.
-- **security-reviewer** test eager import / guard invocation: Not applicable since there are no guards and should not be any.
-- **performance-reviewer** route structure confirmed working: No action needed.
-- **architect-reviewer** deep import path vs barrel in route definition: The current deep import path is actually preferable for lazy loading (avoids pulling in the full barrel). This contradicts the other finding about removing barrel exports. The current approach is correct. No action needed.
-- **architect-reviewer** `export type` tightening: Confirmed correct, no action needed.
-
-None of the findings represent actual bugs, runtime issues, or meaningful code quality problems. All Medium-severity findings are either false positives (standalone, route guards) or low-impact test hygiene observations that do not affect production behavior.
+- **codestyle-reviewer — Generic E2E test name**: Accept. The current name adequately describes the test behavior. Renaming it provides negligible value.
+- **codestyle-reviewer — Independent fixture creation**: Accept. The reviewer already noted no fix is required.
+- **performance-reviewer — Duplicate fadeInUp on section and card**: Accept. With a single card the overhead is negligible. The staggered animation delay (0.15s on the card) is intentional for visual effect. This mirrors the pattern in `home.scss` where feature items also have individual `fadeInUp` animations with staggered delays.
+- **performance-reviewer — Missing will-change on hover transform**: Accept. The `will-change` property should be used sparingly; adding it permanently promotes the element to its own compositor layer at all times, which is a larger cost than occasional first-hover jank on a single card. Browsers increasingly optimize `transition` targets automatically.
+- **architect-reviewer — i18n attribute approach vs data-driven**: Accept. The reviewer already suggests no action now. Agreed.

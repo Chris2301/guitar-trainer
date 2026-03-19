@@ -75,8 +75,9 @@ test.describe('Language switching shows translations in NL, DE, EN', () => {
     const learnHeading = page.getByTestId('learn-heading');
     await expect(learnHeading).toContainText('Learn');
 
-    const learnPlaceholder = page.getByTestId('learn-placeholder');
-    await expect(learnPlaceholder).toContainText('Training exercises are coming soon');
+    // Verify the Fretboard Flash exercise card is visible
+    const exerciseCard = page.getByTestId('exercise-fretboard-flash');
+    await expect(exerciseCard).toBeVisible();
 
     // Switch to Dutch
     const nlButton = page.getByTestId('language-selector').getByTestId('language-option').filter({ hasText: 'NL' });
@@ -84,7 +85,6 @@ test.describe('Language switching shows translations in NL, DE, EN', () => {
 
     await expect(page).toHaveURL(/\/nl\/learn/);
     await expect(page.getByTestId('learn-heading')).toContainText('Leren');
-    await expect(page.getByTestId('learn-placeholder')).toContainText('Trainingsoefeningen komen binnenkort');
 
     // Switch to German
     const deButton = page.getByTestId('language-selector').getByTestId('language-option').filter({ hasText: 'DE' });
@@ -92,6 +92,5 @@ test.describe('Language switching shows translations in NL, DE, EN', () => {
 
     await expect(page).toHaveURL(/\/de\/learn/);
     await expect(page.getByTestId('learn-heading')).toContainText('Lernen');
-    await expect(page.getByTestId('learn-placeholder')).toContainText('Trainingsaufgaben kommen bald');
   });
 });

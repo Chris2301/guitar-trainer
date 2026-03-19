@@ -23,7 +23,7 @@ The WHAT
 
 ## 4. Navigation and Routing
 - [x] 4.1 Lazy-loaded child route `/learn/fretboard-flash`
-- [ ] 4.2 Button/card on Learn page linking to Fretboard Flash
+- [x] 4.2 Button/card on Learn page linking to Fretboard Flash
 - [ ] 4.3 i18n labels for all UI text (NL/DE/EN)
 
 ## 5. Styling and Theming

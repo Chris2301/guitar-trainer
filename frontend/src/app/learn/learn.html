@@ -1,6 +1,13 @@
 <section data-testid="learn-section" class="learn">
   <h2 data-testid="learn-heading" class="learn__heading" i18n="Learn page heading@@learn.heading">Learn</h2>
-  <p data-testid="learn-placeholder" class="learn__placeholder" i18n="Learn page placeholder@@learn.placeholder">
-    Training exercises are coming soon. Check back later for interactive fretboard exercises, quizzes and warm-up games.
-  </p>
+
+  <div class="learn__exercises">
+    <a routerLink="/learn/fretboard-flash" class="learn__card" data-testid="exercise-fretboard-flash">
+      <span class="learn__card-icon" aria-hidden="true">&#127928;</span>
+      <h3 class="learn__card-title" i18n="Fretboard Flash card title@@learn.fretboardFlash.title">Fretboard Flash</h3>
+      <p class="learn__card-description" data-testid="exercise-fretboard-flash-description" i18n="Fretboard Flash card description@@learn.fretboardFlash.description">
+        Learn the notes on the fretboard with flashcard-style exercises. Start with open strings and progress to higher frets.
+      </p>
+    </a>
+  </div>
 </section>
