@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** (pending)
+**Commit:** 7b082b2 feat: add i18n labels for fretboard flash UI text (NL/DE/EN)
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
