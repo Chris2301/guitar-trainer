@@ -2,13 +2,7 @@
 ## Status: FAIL
 ## Findings
 ### codestyle-reviewer
-- **Severity**: Low
-- **Finding**: Missing "should be created" test for NoteDataService — project convention present in other services.
-- **Fix**: Add `it('should be created', () => { expect(service).toBeTruthy(); });` as the first test.
-
-- **Severity**: Low
-- **Finding**: Inconsistent variable naming in test file. Lines 75 and 83 use single-letter `n` while most loops use `note`.
-- **Fix**: Rename `n` to `note` in both places for consistency.
+No issues found.
 
 ### security-reviewer
 No issues found.
@@ -18,43 +12,40 @@ No issues found.
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: `NoteDataService` is an `@Injectable` wrapping a pure filter over a static constant. No HTTP, async, or shared mutable state. The three methods are plain functions on `FRET_NOTES`. Wrapping in a service adds a layer without earning its complexity.
-- **Fix**: Export the three filter functions directly from `note-data.ts` or a sibling `note-data.utils.ts`. If a service boundary is desired for future testability or because `ProgressionService` (task 1.3) will depend on it, keep the service but document the rationale.
+- **Finding**: `ProgressionService` is `providedIn: 'root'` but carries mutable game state (`currentFret`, `pool`, `shownNoteKeys`). Because it is a root singleton, that state persists across Angular navigation. If the user navigates away and returns, the service retains the previous session's progression — unless `reset()` is explicitly called by the component on init.
+- **Fix**: Either (a) scope the service to the feature component by moving to `@Component({ providers: [ProgressionService] })`, giving automatic teardown on destroy, or (b) keep root scope but document that the game component must call `reset()` in `ngOnInit`. Option (a) is safer.
 
 - **Severity**: Medium
-- **Finding**: Test at line 72–79 ("should return the same notes as manual filtering") duplicates the implementation verbatim — tautological test that asserts `Array.filter` equals `Array.filter`.
-- **Fix**: Replace with a concrete, value-based assertion: pick a specific range (e.g., frets 2–4), enumerate exact expected `{ string, fret, note }` tuples from domain knowledge, and assert against those.
+- **Finding**: `getRandomNote()` has no guard for an empty pool. If `pool` is ever empty, `pool[index]` returns `undefined` and the caller gets a silent null-dereference at runtime.
+- **Fix**: Add a guard: `if (this.pool.length === 0) { throw new Error('ProgressionService: pool is empty'); }`
 
 - **Severity**: Low
-- **Finding**: Test at lines 137–145 ("should return an empty array for a fret with no natural notes") derives its expected value from the same dataset it tests. The comment says fret 11 has no natural notes but the test never verifies that belief.
-- **Fix**: Assert the concrete value directly: `expect(result.length).toBe(0)` if correct, or remove the misleading comment.
+- **Finding**: The `MAX_FRET` constant is defined as a module-level `const` inside the service file. This duplicates the upper bound already encoded in `note-data.ts` (frets 0–15). If data is extended, `MAX_FRET` must be updated in two places.
+- **Fix**: Export `MAX_FRET` from `note-data.ts` or derive it from `FRET_NOTES`.
 
 - **Severity**: Low
-- **Finding**: Barrel export in `index.ts` exports `FRET_NOTES` (large static array) at the feature boundary. Consumers who only need the service will pull in the dataset.
-- **Fix**: Only export what external consumers need. Keep `FRET_NOTES` package-private if nothing outside the feature folder needs it directly.
+- **Finding**: The test "should not expand beyond fret 15" fast-forwards through 15 iterations with large pools. Could be tested more efficiently with spies.
+- **Fix**: Consider using `spyOn(noteDataService, 'getNotesOnFret').and.returnValue([])` to isolate the boundary check.
 
 ## Engineer Assessment
 ### Overall Decision: REFACTOR
 ### Reasoning per finding
-
-#### architect-reviewer — NoteDataService wraps pure functions unnecessarily
-- **Decision**: Accept (keep service)
-- **Reasoning**: The reviewer's observation is technically correct -- the methods are pure filters over static data. However, the reviewer themselves note that if `ProgressionService` (task 1.3, the very next task) will depend on it, keeping the service is justified. Looking at the task list, `ProgressionService` will indeed consume note data, and injecting `NoteDataService` into it is the standard Angular pattern for DI-based composition and testability. The service costs almost nothing in complexity (20 lines, no state). Refactoring to free functions now and then potentially wrapping them again later would be churn. No change needed.
-
-#### architect-reviewer — Tautological test duplicates implementation
+#### architect-reviewer — Root-scoped service with mutable game state
 - **Decision**: Fix
-- **Reasoning**: This is a valid Medium-severity finding. The test at lines 72-79 literally copies the filter logic from the service and asserts that the service produces the same result. If the implementation has a bug, the test has the same bug. This test provides zero regression protection. It should be replaced with a concrete, value-based assertion using domain knowledge (e.g., assert exact notes expected in frets 2-4).
+- **Reasoning**: This is a real and practical bug. The service is `providedIn: 'root'`, so if the user navigates to Fretboard Flash, progresses to fret 5, navigates away, and comes back, they will resume at fret 5 with the old pool instead of starting fresh. Option (a) — scoping the service to the game component via `@Component({ providers: [...] })` — is the cleanest fix. It gives automatic teardown, eliminates the need for the consumer to remember to call `reset()`, and the service has no reason to be a root singleton since no other feature needs it. This also aligns with the design doc which describes it as a game-session-scoped concern. The `reset()` method can be kept for in-session restarts but is no longer the primary lifecycle mechanism. Worth fixing now before Task 3.4 integrates it into the page component.
+
+#### architect-reviewer — getRandomNote() has no guard for empty pool
+- **Decision**: Fix
+- **Reasoning**: This is a valid defensive programming concern. While the pool is initialized in the constructor and `expandPool` only replaces it with non-empty results from `getNotesUpToFret`, the failure mode (returning `undefined` silently) is worse than throwing an explicit error. The guard is a single line and makes the contract explicit. If a future refactor or test setup creates a scenario with an empty pool, a clear error is far better than a downstream `Cannot read property 'note' of undefined`. Low effort, high clarity — worth fixing.
 
 #### Low-severity / Nitpick findings
-- **codestyle-reviewer -- Missing "should be created" test**: Will not fix. Our own test guidelines explicitly state "never write tests that only check something exists". A `should be created` test verifies Angular DI works, not our business logic. Adding it would contradict the project's testing philosophy.
-- **codestyle-reviewer -- Inconsistent variable naming (`n` vs `note`)**: Will fix while addressing the tautological test, since line 75 is inside that test. Line 83 will also be updated for consistency. Low effort, improves readability.
-- **architect-reviewer -- Fret 11 test derives expected value from dataset**: Will fix. I confirmed fret 11 has zero natural notes across all strings. The test should simply assert `expect(result.length).toBe(0)` rather than deriving the expected value from `FRET_NOTES`. This is a quick, valuable improvement to test clarity.
-- **architect-reviewer -- Barrel export of FRET_NOTES**: Will fix. No external consumer currently needs `FRET_NOTES` directly -- they should go through the service. Removing it from the barrel export is a one-line change that improves encapsulation.
+- **MAX_FRET duplication** (Low): Will defer. The constant `15` is also hardcoded in the `generateFretNotes` loop in `note-data.ts`, so the duplication already exists in more than one form. Deriving it from `FRET_NOTES` adds a runtime computation for a value that is fundamentally a design constant. For a ~50-note dataset this is not a maintenance risk yet. Can be addressed if/when the fret range becomes configurable.
+- **Test efficiency for fret-15 boundary test** (Low): Will not address. The current test is an integration-style test that exercises the real expansion path end-to-end, which gives higher confidence than a spy-based unit test. It runs in milliseconds against in-memory data. The test is readable and correct — optimizing it would reduce coverage confidence for no meaningful performance gain.
 
 ## Re-review (Cycle 2)
 ### Status: PASS
 All 4 reviewers confirmed fixes were correctly applied. No new issues found.
-- **codestyle-reviewer**: No issues found — variable naming fix verified
+- **codestyle-reviewer**: No issues found
 - **security-reviewer**: No issues found
 - **performance-reviewer**: No issues found
-- **architect-reviewer**: All three fixes (#2 tautological test, #3 fret 11 assertion, #4 barrel export) verified as correct
+- **architect-reviewer**: Both fixes verified — `providedIn: 'root'` removed, empty pool guard added with test coverage
