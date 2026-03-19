@@ -1,55 +1,63 @@
-# Review Feedback — Task 6.1: Playwright test: navigation from Learn page to Fretboard Flash
+# Review Feedback — Task 6.2: Playwright test: game loop — note appears, answer appears on fretboard, next note
 ## Status: PASS
 ## Findings
 
 ### codestyle-reviewer
 - **Severity**: Low
-- **Finding**: Function signature breaks `{ page }` across two lines, inconsistent with other tests that use single-line format
-- **Fix**: Put `async ({ page }) => {` on one line
+- **Finding**: Duplicate assertion — `page.getByTestId('note-marker')` is asserted as not visible at line 16 (IDLE state) and again at line 31 (after SHOW_NOTE), which is redundant since the marker wouldn't appear between those two points.
+- **Fix**: Remove the duplicate assertion at line 31 and its comment.
+
+- **Severity**: Nitpick
+- **Finding**: Variable name `noteStillShown` is awkward.
+- **Fix**: Rename to something more descriptive like `noteAfterMarkerAppears`, or inline the assertion.
 
 ### security-reviewer
 No issues found.
 
 ### performance-reviewer
-No issues found.
+- **Severity**: Critical
+- **Finding**: Test waits against real production timers (5s SHOW_NOTE + 3s SHOW_ANSWER = 8s minimum wall-clock time per run). On CI with retries, this could burn 24s on one test.
+- **Fix**: Make timer durations injectable via an InjectionToken with test-overridable values, or expose a query parameter for fast mode. Reduce E2E timeout ceilings accordingly.
+
+- **Severity**: Low
+- **Finding**: `page.getByTestId('note-marker')` is called 4 times before being assigned to a variable at line 35. Inconsistent with the pattern used for `startButton` and `noteDisplay`.
+- **Fix**: Hoist the `noteMarker` locator assignment to before the IDLE-state assertions.
+
+- **Severity**: Low
+- **Finding**: `textContent()` uses non-null assertion `!` without guard, which could produce misleading error messages.
+- **Fix**: Add a null check or use `expect(noteDisplay).toHaveText(...)` with regex.
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: Test starts at `/` and clicks `nav-learn` to reach `/learn`, duplicating navigation already covered in `navigation.spec.ts` and `homepage.spec.ts`. The subject of this test is Learn → Fretboard Flash, not homepage → Learn.
-- **Fix**: Start with `page.goto('/learn')` instead of navigating from homepage.
-
-- **Severity**: Medium
-- **Finding**: Test asserts `fretboard-flash-page`, `start-button`, and `fretboard-wrapper` visibility on the game page, overlapping with assertions already in `fretboard-flash-theme.spec.ts`. Navigation journey tests should verify URL arrival and one sentinel element, not detailed page content.
-- **Fix**: Limit destination assertions to `toHaveURL` and one sentinel element (e.g. `fretboard-flash-page`). Leave element-level checks to dedicated page tests.
+- **Finding**: Test relies on hardcoded wall-clock delays tied to game's internal timing constants (~5s + ~3s). If those constants change, the test becomes silently wrong or flaky.
+- **Fix**: Expose timing constants as test-overridable values (e.g. query parameter or injectable token) so tests can control game pace.
 
 - **Severity**: Low
-- **Finding**: Deletion of `learn-page.spec.ts` is appropriate — the new file covers its intent.
-- **Fix**: No action needed.
+- **Finding**: Partial overlap with `fretboard-flash-theme.spec.ts` in the IDLE-to-SHOW_NOTE transition. Both tests click start and assert note visibility.
+- **Fix**: Extract shared game-start sequence into a helper. Not urgent at current scale.
+
+- **Severity**: Low
+- **Finding**: `VALID_NOTES` constant defined at module level could be shared with future tests.
+- **Fix**: Move to a shared helpers file when a second usage site appears.
 
 ## Engineer Assessment
-### Overall Decision: REFACTOR
+### Overall Decision: ACCEPT
 ### Reasoning per finding
 
-#### codestyle-reviewer — Function signature line break inconsistency
-- **Decision**: Fix
-- **Reasoning**: Trivial to fix while making the other changes, and it brings the file in line with the formatting convention used in every other test file in the project. Will address during refactor.
+#### performance-reviewer — Real timer waits cause 8s+ E2E test runtime (Critical)
+- **Decision**: Accept
+- **Reasoning**: The proposed fix (injectable timer durations or query-parameter fast mode) introduces production code complexity solely to speed up one E2E test. The 8s wall-clock time is well within normal bounds for an E2E test that validates a real-time game loop — Playwright tests routinely wait for animations, network calls, and timed transitions. Even with 3 retries the worst case is ~24s, which is not a CI bottleneck for a project of this scale with a small E2E suite. The test already uses Playwright's built-in `timeout` option on assertions, which is the idiomatic way to handle timed waits. Adding an InjectionToken or query parameter to bypass real timers would mean the E2E test no longer validates the actual user experience, which defeats the purpose of testing the game loop end-to-end. If the timer count or total test time becomes a real CI problem in the future, this can be revisited. The severity is overstated — this is a Low concern, not Critical.
 
-#### architect-reviewer — Test duplicates homepage-to-Learn navigation
-- **Decision**: Fix
-- **Reasoning**: This is a valid Medium finding. The test is titled "navigates from Learn page to Fretboard Flash" but it starts at `/` and clicks through to `/learn`, which is the exact journey already covered by both `navigation.spec.ts` (line 19: click Learn link, assert `/learn` URL) and `homepage.spec.ts` (line 26-27: click CTA, assert `/learn` URL). Starting at `page.goto('/learn')` makes the test faster, more focused on its actual subject, and eliminates redundant coverage. This directly aligns with the project guideline "One e2e per user journey, not per page."
-
-#### architect-reviewer — Redundant destination page assertions
-- **Decision**: Fix
-- **Reasoning**: This is a valid Medium finding. After navigating to `/learn/fretboard-flash`, the test asserts visibility of `fretboard-flash-page`, `start-button`, and `fretboard-wrapper`. The theme test (`fretboard-flash-theme.spec.ts`) already thoroughly verifies `fretboard-flash-page` and `start-button` visibility (lines 7-8, 18-19). A navigation journey test should confirm arrival (URL check + one sentinel element) and stop there. Asserting detailed page content couples this test to the destination page's internal structure, making it brittle and duplicative. The fix is to keep only `toHaveURL` and the `fretboard-flash-page` sentinel assertion, removing `start-button` and `fretboard-wrapper` checks.
+#### architect-reviewer — Hardcoded delays coupled to internal timing constants (Medium)
+- **Decision**: Accept
+- **Reasoning**: This is the same underlying concern as the performance-reviewer finding. The test does not hardcode the exact timer values — it uses Playwright assertion timeouts (7000ms for a 5000ms timer, 5000ms for a 3000ms timer) that provide generous margins. If someone changes the production timer constants, the E2E test would either still pass (if the new values are shorter) or fail visibly (if they are longer than the Playwright timeouts), which is the correct behavior — the test acts as a regression guard. The risk of "silent wrongness" is low because the test verifies observable UI state transitions, not internal timer values. Making timers injectable adds indirection to a simple service for marginal test benefit. At the current scale (one game, two timer constants), this is not worth the added complexity.
 
 #### Low-severity / Nitpick findings
-- The `learn-page.spec.ts` deletion acknowledgment (architect-reviewer, Low) requires no action. The codestyle line-break finding will be addressed as part of the refactor since the cost is zero.
+- **Locator hoisting** (performance-reviewer, Low): Reasonable cleanup. The `noteMarker` locator should be hoisted to match the pattern used for `startButton` and `noteDisplay`. Will address if a refactor round happens.
+- **Duplicate marker assertion** (codestyle-reviewer, Low): The assertion at line 31 is not truly redundant — it explicitly documents that during SHOW_NOTE state the marker is not yet visible, which is a distinct logical checkpoint from the IDLE state assertion at line 16. Acceptable to keep for readability as a demo-oriented test.
+- **`noteStillShown` naming** (codestyle-reviewer, Nitpick): Minor style preference. The current name is clear enough in context.
+- **Non-null assertion on `textContent()`** (performance-reviewer, Low): Valid point but low risk — if `textContent()` returns null, the test fails anyway, just with a less descriptive error. Could be improved with `toHaveText()` but not urgent.
+- **Shared game-start helper** (architect-reviewer, Low): Agreed with the reviewer's own note — not urgent at current scale. Apply when a second usage site appears.
+- **Shared `VALID_NOTES`** (architect-reviewer, Low): Same — defer until reuse is needed.
 
-## Re-Review (Cycle 2)
-- **codestyle-reviewer**: PASS — function signature reformatted to single line
-- **security-reviewer**: PASS — no security changes to re-evaluate
-- **performance-reviewer**: PASS — no performance changes to re-evaluate
-- **architect-reviewer**: PASS — test now starts at `/learn`, redundant destination assertions removed, only sentinel element retained
-
-### Engineer Assessment (Cycle 2)
-### Overall Decision: ACCEPT
+None of these Low/Nitpick findings warrant a refactor pass on their own.
