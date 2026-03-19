@@ -12,35 +12,30 @@ No issues found.
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: `ProgressionService` is `providedIn: 'root'` but carries mutable game state (`currentFret`, `pool`, `shownNoteKeys`). Because it is a root singleton, that state persists across Angular navigation. If the user navigates away and returns, the service retains the previous session's progression — unless `reset()` is explicitly called by the component on init.
-- **Fix**: Either (a) scope the service to the feature component by moving to `@Component({ providers: [ProgressionService] })`, giving automatic teardown on destroy, or (b) keep root scope but document that the game component must call `reset()` in `ngOnInit`. Option (a) is safer.
+- **Finding**: `getRandomNote` now has a hidden side effect — calling it auto-marks the returned note as shown and may silently trigger pool expansion. The method name implies a pure read operation. A caller who calls `getRandomNote` in a loop for statistical sampling (as the existing test on line 60 does) will unintentionally advance the pool and alter internal state as a side effect of what looks like a query. Rename to `drawNote` or `nextNote` to signal state advancement, or add a JSDoc comment documenting the side effect.
+- **Fix**: Rename `getRandomNote` to `drawNote` or `nextNote` to make the side effect self-documenting.
 
 - **Severity**: Medium
-- **Finding**: `getRandomNote()` has no guard for an empty pool. If `pool` is ever empty, `pool[index]` returns `undefined` and the caller gets a silent null-dereference at runtime.
-- **Fix**: Add a guard: `if (this.pool.length === 0) { throw new Error('ProgressionService: pool is empty'); }`
+- **Finding**: The test "should trigger pool expansion when getRandomNote completes showing all pool notes" does not actually call `getRandomNote`. It calls `markNoteAsShown` directly, so it does not test the integration path it claims to test. The test title is misleading.
+- **Fix**: Rename the test to "should expand pool when all notes marked via markNoteAsShown" to match what it actually does.
 
 - **Severity**: Low
-- **Finding**: The `MAX_FRET` constant is defined as a module-level `const` inside the service file. This duplicates the upper bound already encoded in `note-data.ts` (frets 0–15). If data is extended, `MAX_FRET` must be updated in two places.
-- **Fix**: Export `MAX_FRET` from `note-data.ts` or derive it from `FRET_NOTES`.
-
-- **Severity**: Low
-- **Finding**: The test "should not expand beyond fret 15" fast-forwards through 15 iterations with large pools. Could be tested more efficiently with spies.
-- **Fix**: Consider using `spyOn(noteDataService, 'getNotesOnFret').and.returnValue([])` to isolate the boundary check.
+- **Finding**: `expandPool` at max fret clears `shownNoteKeys` but does not change `currentFret` or `pool`. The asymmetry is intentional but only explained by a comment. No code change required — documentation note.
+- **Fix**: No change needed; comment is sufficient.
 
 ## Engineer Assessment
 ### Overall Decision: REFACTOR
 ### Reasoning per finding
-#### architect-reviewer — Root-scoped service with mutable game state
+#### architect-reviewer — getRandomNote has hidden side effect, should be renamed
 - **Decision**: Fix
-- **Reasoning**: This is a real and practical bug. The service is `providedIn: 'root'`, so if the user navigates to Fretboard Flash, progresses to fret 5, navigates away, and comes back, they will resume at fret 5 with the old pool instead of starting fresh. Option (a) — scoping the service to the game component via `@Component({ providers: [...] })` — is the cleanest fix. It gives automatic teardown, eliminates the need for the consumer to remember to call `reset()`, and the service has no reason to be a root singleton since no other feature needs it. This also aligns with the design doc which describes it as a game-session-scoped concern. The `reset()` method can be kept for in-session restarts but is no longer the primary lifecycle mechanism. Worth fixing now before Task 3.4 integrates it into the page component.
+- **Reasoning**: This is a valid finding. `getRandomNote` sounds like a pure query but it mutates internal state (marks as shown, may trigger pool expansion). The statistical test on line 60-68 calls it 50 times in a loop, which will cause multiple pool expansions as a side effect — the test still passes by coincidence because expansion adds more notes, but it is testing different behavior than intended. Renaming to `drawNote` or `nextNote` is cheap, improves API clarity, and prevents future misuse. The rename is low-risk and the method is not yet consumed by many callers since this is a new service.
 
-#### architect-reviewer — getRandomNote() has no guard for empty pool
+#### architect-reviewer — misleading test title for pool expansion via getRandomNote
 - **Decision**: Fix
-- **Reasoning**: This is a valid defensive programming concern. While the pool is initialized in the constructor and `expandPool` only replaces it with non-empty results from `getNotesUpToFret`, the failure mode (returning `undefined` silently) is worse than throwing an explicit error. The guard is a single line and makes the contract explicit. If a future refactor or test setup creates a scenario with an empty pool, a clear error is far better than a downstream `Cannot read property 'note' of undefined`. Low effort, high clarity — worth fixing.
+- **Reasoning**: The test at line 77 claims to test pool expansion "when getRandomNote completes showing all pool notes" but calls `markNoteAsShown` directly. The title is misleading. Renaming the test to accurately describe what it does is trivial and improves test maintainability. Additionally, once `getRandomNote` is renamed to `drawNote`, this test's describe block name should also be updated.
 
 #### Low-severity / Nitpick findings
-- **MAX_FRET duplication** (Low): Will defer. The constant `15` is also hardcoded in the `generateFretNotes` loop in `note-data.ts`, so the duplication already exists in more than one form. Deriving it from `FRET_NOTES` adds a runtime computation for a value that is fundamentally a design constant. For a ~50-note dataset this is not a maintenance risk yet. Can be addressed if/when the fret range becomes configurable.
-- **Test efficiency for fret-15 boundary test** (Low): Will not address. The current test is an integration-style test that exercises the real expansion path end-to-end, which gives higher confidence than a spy-based unit test. It runs in milliseconds against in-memory data. The test is readable and correct — optimizing it would reduce coverage confidence for no meaningful performance gain.
+- The Low finding about `expandPool` behavior at max fret is acknowledged as a documentation-only note. No code change needed — the existing comment on line 73 is sufficient. Will not address.
 
 ## Re-review (Cycle 2)
 ### Status: PASS
@@ -48,4 +43,4 @@ All 4 reviewers confirmed fixes were correctly applied. No new issues found.
 - **codestyle-reviewer**: No issues found
 - **security-reviewer**: No issues found
 - **performance-reviewer**: No issues found
-- **architect-reviewer**: Both fixes verified — `providedIn: 'root'` removed, empty pool guard added with test coverage
+- **architect-reviewer**: Both fixes verified — `getRandomNote` renamed to `drawNote` throughout, misleading test title corrected

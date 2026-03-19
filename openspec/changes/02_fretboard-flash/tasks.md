@@ -7,7 +7,7 @@ The WHAT
 - [x] 1.1 Define `FretNote` interface and static note data for all natural notes on fret 0-15
 - [x] 1.2 Implement `NoteDataService` that can filter notes by fret range
 - [x] 1.3 Implement `ProgressionService` — manages current note pool, starts with open strings, expands per fret
-- [ ] 1.4 Logic for pool expansion: track which notes have been shown, expand when all current pool notes have been seen at least once
+- [x] 1.4 Logic for pool expansion: track which notes have been shown, expand when all current pool notes have been seen at least once
 
 ## 2. Fretboard Display
 - [ ] 2.1 Create/obtain fretboard image (guitar neck, fret 1-15, 6 strings)

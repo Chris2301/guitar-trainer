@@ -28,12 +28,18 @@ export class ProgressionService {
     return this.shownNoteKeys.size;
   }
 
-  getRandomNote(): FretNote {
+  drawNote(): FretNote {
     if (this.pool.length === 0) {
-      throw new Error('ProgressionService: pool is empty — cannot get random note');
+      throw new Error('ProgressionService: pool is empty — cannot draw note');
     }
     const index = Math.floor(Math.random() * this.pool.length);
-    return this.pool[index];
+    const note = this.pool[index];
+    this.markNoteAsShown(note);
+    return note;
+  }
+
+  hasBeenShown(note: FretNote): boolean {
+    return this.shownNoteKeys.has(this.noteKey(note));
   }
 
   markNoteAsShown(note: FretNote): void {
@@ -64,7 +70,8 @@ export class ProgressionService {
       nextFret++;
     }
 
-    // Already at max — no expansion possible
+    // Already at max — reset shown tracking so the game continues cycling
+    this.shownNoteKeys.clear();
   }
 
   private noteKey(note: FretNote): string {

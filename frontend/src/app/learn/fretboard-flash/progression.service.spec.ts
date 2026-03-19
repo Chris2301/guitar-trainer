@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ProgressionService } from './progression.service';
 import { NoteDataService } from './note-data.service';
-import { FretNote } from './note-data';
 
 describe('ProgressionService', () => {
   let service: ProgressionService;
@@ -41,10 +40,10 @@ describe('ProgressionService', () => {
     });
   });
 
-  describe('getRandomNote', () => {
+  describe('drawNote', () => {
     it('should return a note from the current pool', () => {
       const pool = service.getCurrentPool();
-      const note = service.getRandomNote();
+      const note = service.drawNote();
 
       expect(pool).toContain(note);
     });
@@ -53,26 +52,49 @@ describe('ProgressionService', () => {
       // Access private pool via any-cast to force an empty pool scenario
       (service as any).pool = [];
 
-      expect(() => service.getRandomNote()).toThrowError(
-        'ProgressionService: pool is empty — cannot get random note',
+      expect(() => service.drawNote()).toThrowError(
+        'ProgressionService: pool is empty — cannot draw note',
       );
     });
 
     it('should return different notes over multiple calls (statistical check)', () => {
       const notes = new Set<string>();
       for (let i = 0; i < 50; i++) {
-        const note = service.getRandomNote();
+        const note = service.drawNote();
         notes.add(`${note.string}-${note.fret}`);
       }
       // With 6 open strings and 50 draws, we should see more than 1 unique note
       expect(notes.size).toBeGreaterThan(1);
     });
+
+    it('should automatically mark the returned note as shown', () => {
+      const note = service.drawNote();
+
+      expect(service.getShownNoteCount()).toBe(1);
+      expect(service.hasBeenShown(note)).toBe(true);
+    });
+
+    it('should expand pool when all notes marked via markNoteAsShown', () => {
+      const pool = service.getCurrentPool();
+      expect(pool.length).toBe(6);
+
+      // Mark all notes as shown to trigger expansion
+      // We need to force deterministic behavior for this test
+      const seen = new Set<string>();
+      for (const note of pool) {
+        service.markNoteAsShown(note);
+        seen.add(`${note.string}-${note.fret}`);
+      }
+
+      // After all notes shown, pool should have expanded
+      expect(service.getCurrentFret()).toBe(1);
+    });
   });
 
   describe('markNoteAsShown', () => {
     it('should track that a note has been shown', () => {
-      const note = service.getRandomNote();
-      service.markNoteAsShown(note);
+      const pool = service.getCurrentPool();
+      service.markNoteAsShown(pool[0]);
 
       expect(service.getShownNoteCount()).toBe(1);
     });
@@ -95,6 +117,33 @@ describe('ProgressionService', () => {
       service.markNoteAsShown(pool[2]);
 
       expect(service.getShownNoteCount()).toBe(3);
+    });
+  });
+
+  describe('hasBeenShown', () => {
+    it('should return false for a note that has not been shown', () => {
+      const pool = service.getCurrentPool();
+
+      expect(service.hasBeenShown(pool[0])).toBe(false);
+    });
+
+    it('should return true for a note that has been shown', () => {
+      const pool = service.getCurrentPool();
+      service.markNoteAsShown(pool[0]);
+
+      expect(service.hasBeenShown(pool[0])).toBe(true);
+    });
+
+    it('should return false after pool expansion resets tracking', () => {
+      const pool = service.getCurrentPool();
+
+      // Mark all notes as shown to trigger expansion
+      for (const note of pool) {
+        service.markNoteAsShown(note);
+      }
+
+      // After expansion, previously shown notes should no longer be marked
+      expect(service.hasBeenShown(pool[0])).toBe(false);
     });
   });
 
@@ -202,6 +251,25 @@ describe('ProgressionService', () => {
       expect(service.getCurrentFret()).toBeLessThanOrEqual(15);
       // Pool should contain all natural notes
       expect(service.getCurrentPool().length).toBe(noteDataService.getNotesUpToFret(15).length);
+    });
+
+    it('should reset shown tracking when all notes seen at max fret', () => {
+      // Fast-forward to max fret
+      for (let targetFret = 1; targetFret <= 15; targetFret++) {
+        const currentPool = service.getCurrentPool();
+        for (const note of currentPool) {
+          service.markNoteAsShown(note);
+        }
+      }
+
+      // Mark all notes at max fret as shown
+      const maxPool = service.getCurrentPool();
+      for (const note of maxPool) {
+        service.markNoteAsShown(note);
+      }
+
+      // Shown tracking should reset so the game continues cycling
+      expect(service.getShownNoteCount()).toBe(0);
     });
   });
 
