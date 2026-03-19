@@ -6,32 +6,51 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem;
   max-width: 900px;
   margin: 0 auto;
+  gap: 1.5rem;
+}
+
+.note-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  width: 100%;
 }
 
 .note-display {
-  font-size: 6rem;
+  font-size: 7rem;
   font-weight: 800;
-  color: var(--gt-primary);
+  color: var(--gt-accent);
   text-align: center;
-  margin-bottom: 1.5rem;
   line-height: 1;
+  letter-spacing: 0.05em;
+  user-select: none;
 }
 
 .game-controls {
-  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
 }
 
 .game-button {
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 2.5rem;
   border: none;
   border-radius: 0.8rem;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.03);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
 
   &--start {
     background-color: var(--gt-accent);
@@ -41,5 +60,20 @@
   &--stop {
     background-color: var(--gt-neutral-mid);
     color: var(--gt-hero-text);
+  }
+}
+
+@media (max-width: 768px) {
+  .note-area {
+    min-height: 6rem;
+  }
+
+  .note-display {
+    font-size: 5rem;
+  }
+
+  .fretboard-flash-page {
+    padding: 1rem 0.5rem;
+    gap: 1rem;
   }
 }

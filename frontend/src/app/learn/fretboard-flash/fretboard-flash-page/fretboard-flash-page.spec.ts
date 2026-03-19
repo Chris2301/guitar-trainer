@@ -147,6 +147,60 @@ describe('FretboardFlashPageComponent', () => {
     });
   });
 
+  describe('game page layout', () => {
+    it('should always render a note area container so layout does not shift when game starts', () => {
+      fixture.detectChanges();
+
+      const noteArea = nativeElement.querySelector('[data-testid="note-area"]');
+      expect(noteArea).toBeTruthy();
+    });
+
+    it('should render the note area before the fretboard in DOM order', () => {
+      fixture.detectChanges();
+
+      const noteArea = nativeElement.querySelector('[data-testid="note-area"]');
+      const fretboard = nativeElement.querySelector('app-fretboard-display');
+      expect(noteArea).toBeTruthy();
+      expect(fretboard).toBeTruthy();
+
+      // note-area should come before the fretboard in the DOM
+      const position = noteArea!.compareDocumentPosition(fretboard!);
+      expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('should render game controls after the fretboard in DOM order', () => {
+      fixture.detectChanges();
+
+      const fretboard = nativeElement.querySelector('app-fretboard-display');
+      const controls = nativeElement.querySelector('[data-testid="game-controls"]');
+      expect(fretboard).toBeTruthy();
+      expect(controls).toBeTruthy();
+
+      const position = fretboard!.compareDocumentPosition(controls!);
+      expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('should show the note letter inside the note area when game is running', () => {
+      vi.spyOn(progressionService, 'drawNote').mockReturnValue(testNote);
+      gameStateService.start();
+      fixture.detectChanges();
+
+      const noteArea = nativeElement.querySelector('[data-testid="note-area"]');
+      const noteDisplay = noteArea!.querySelector('[data-testid="note-display"]');
+      expect(noteDisplay).toBeTruthy();
+      expect(noteDisplay!.textContent!.trim()).toBe('G');
+    });
+
+    it('should show an empty note area when game is idle', () => {
+      fixture.detectChanges();
+
+      const noteArea = nativeElement.querySelector('[data-testid="note-area"]');
+      expect(noteArea).toBeTruthy();
+      const noteDisplay = noteArea!.querySelector('[data-testid="note-display"]');
+      expect(noteDisplay).toBeNull();
+    });
+  });
+
   describe('note display updates', () => {
     it('should update the displayed note letter when the current note changes', () => {
       const firstNote: FretNote = { string: 6, fret: 0, note: 'E', x: 1.5, y: 92 };

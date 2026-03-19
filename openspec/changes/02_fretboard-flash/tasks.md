@@ -27,7 +27,7 @@ The WHAT
 - [x] 4.3 i18n labels for all UI text (NL/DE/EN)
 
 ## 5. Styling and Theming
-- [ ] 5.1 Game page layout — note letter large and centered, fretboard below
+- [x] 5.1 Game page layout — note letter large and centered, fretboard below
 - [ ] 5.2 Light/dark theme support for all game components
 - [ ] 5.3 Visual styling of note marker (color, size, animation)
 

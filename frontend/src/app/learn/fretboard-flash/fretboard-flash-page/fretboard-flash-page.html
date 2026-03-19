@@ -1,9 +1,11 @@
 <div class="fretboard-flash-page" data-testid="fretboard-flash-page">
-  @if (!isIdle()) {
-    <div class="note-display" data-testid="note-display">
-      {{ currentNote()?.note }}
-    </div>
-  }
+  <div class="note-area" data-testid="note-area">
+    @if (!isIdle()) {
+      <div class="note-display" data-testid="note-display">
+        {{ currentNote()?.note }}
+      </div>
+    }
+  </div>
 
   <app-fretboard-display [note]="fretboardNote()" />
 
