@@ -3,35 +3,35 @@ The WHAT
 
 # **Critical: TDD approach - tests first!**
 
-## 1. Nootdata en Progressie
-- [ ] 1.1 Definieer `FretNote` interface en statische nootdata voor alle natuurlijke noten op fret 0-15
-- [ ] 1.2 Implementeer `NoteDataService` die noten kan filteren op fret-range
-- [ ] 1.3 Implementeer `ProgressionService` — beheert huidige nootpool, start met open snaren, breidt uit per fret
-- [ ] 1.4 Logica voor pool-uitbreiding: track welke noten getoond zijn, breid uit wanneer alle huidige pool-noten minstens 1x gezien
+## 1. Note Data and Progression
+- [ ] 1.1 Define `FretNote` interface and static note data for all natural notes on fret 0-15
+- [ ] 1.2 Implement `NoteDataService` that can filter notes by fret range
+- [ ] 1.3 Implement `ProgressionService` — manages current note pool, starts with open strings, expands per fret
+- [ ] 1.4 Logic for pool expansion: track which notes have been shown, expand when all current pool notes have been seen at least once
 
-## 2. Fretboard Weergave
-- [ ] 2.1 Maak/verkrijg fretboard-afbeelding (gitaarhals, fret 1-15, 6 snaren)
-- [ ] 2.2 Implementeer `FretboardDisplayComponent` — toont afbeelding met overlay-container
-- [ ] 2.3 Note marker overlay — dot op x/y-positie (percentages) bovenop de afbeelding
-- [ ] 2.4 Responsive scaling — fretboard past zich aan aan schermgrootte, markers schalen mee
+## 2. Fretboard Display
+- [ ] 2.1 Create/obtain fretboard image (guitar neck, fret 1-15, 6 strings)
+- [ ] 2.2 Implement `FretboardDisplayComponent` — displays image with overlay container
+- [ ] 2.3 Note marker overlay — dot at x/y position (percentages) on top of the image
+- [ ] 2.4 Responsive scaling — fretboard adapts to screen size, markers scale along
 
 ## 3. Game Loop
-- [ ] 3.1 Implementeer game state machine: `SHOW_NOTE` → `SHOW_ANSWER` → next note
-- [ ] 3.2 Timer-logica: 5 seconden noot tonen, 3 seconden antwoord tonen
-- [ ] 3.3 Integratie met `ProgressionService` — vraag volgende willekeurige noot op
-- [ ] 3.4 `FretboardFlashPageComponent` — samenstelling van noot-display, fretboard en game controls
+- [ ] 3.1 Implement game state machine: `SHOW_NOTE` → `SHOW_ANSWER` → next note
+- [ ] 3.2 Timer logic: 5 seconds show note, 3 seconds show answer
+- [ ] 3.3 Integration with `ProgressionService` — request next random note
+- [ ] 3.4 `FretboardFlashPageComponent` — composition of note display, fretboard and game controls
 
-## 4. Navigatie en Routing
+## 4. Navigation and Routing
 - [ ] 4.1 Lazy-loaded child route `/learn/fretboard-flash`
-- [ ] 4.2 Button/card op Learn-pagina die naar Fretboard Flash linkt
-- [ ] 4.3 i18n labels voor alle UI-tekst (NL/DE/EN)
+- [ ] 4.2 Button/card on Learn page linking to Fretboard Flash
+- [ ] 4.3 i18n labels for all UI text (NL/DE/EN)
 
-## 5. Styling en Theming
-- [ ] 5.1 Game-pagina layout — nootletter groot gecentreerd, fretboard daaronder
-- [ ] 5.2 Light/dark theme support voor alle game-componenten
-- [ ] 5.3 Visuele styling van note marker (kleur, grootte, animatie)
+## 5. Styling and Theming
+- [ ] 5.1 Game page layout — note letter large and centered, fretboard below
+- [ ] 5.2 Light/dark theme support for all game components
+- [ ] 5.3 Visual styling of note marker (color, size, animation)
 
 ## 6. E2E Tests
-- [ ] 6.1 Playwright test: navigatie van Learn-pagina naar Fretboard Flash
-- [ ] 6.2 Playwright test: game-loop — noot verschijnt, antwoord verschijnt op fretboard, volgende noot
-- [ ] 6.3 Playwright test: progressie — pool breidt uit na open noten
+- [ ] 6.1 Playwright test: navigation from Learn page to Fretboard Flash
+- [ ] 6.2 Playwright test: game loop — note appears, answer appears on fretboard, next note
+- [ ] 6.3 Playwright test: progression — pool expands after open notes
