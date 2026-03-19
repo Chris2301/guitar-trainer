@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 3.3 Shared header with navigation links, theme toggle and language selector
+**From tasks.md:** 4.1 Write Playwright test: theme toggle switches between light and dark
 
 ## Checklist
 ### 1. Understanding
@@ -8,29 +8,29 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Created a new `HeaderComponent` with navigation links (Home, Learn), a theme toggle button that calls `ThemeService.toggleTheme()` directly, and a language selector with NL/DE/EN buttons. Used Angular signals for reactive state, OnPush change detection, and Taiga UI theming integration. The header is placed inside `tui-root` in `AppComponent` above `router-outlet`.
+**Approach:** Created a new Playwright E2E test file `theme-toggle.spec.ts` with two tests: (1) verifies the toggle button exists, default is light theme, clicking switches to dark (checked via `tuitheme` attribute and `aria-label`), and clicking again returns to light; (2) verifies that a CSS custom property (`--gt-text`) actually changes value between light and dark modes.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
 - [x] Implemented minimum code to pass
 - [x] All tests pass
 
-**Test file(s):** `frontend/src/app/header/header.spec.ts` (10 unit tests), existing e2e tests in `e2e/` (4 tests all passing)
+**Test file(s):** `frontend/e2e/journeys/theme-toggle.spec.ts` (2 tests, all 6 e2e tests passing)
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — cycle 1: 2 Medium (signal usage, line length) + 2 Low; cycle 2: passed
-- [x] `security-reviewer` — no issues found (both cycles)
-- [x] `performance-reviewer` — cycle 1: 1 Warning (duplicate signal read) + 2 Low; cycle 2: passed
-- [x] `architect-reviewer` — cycle 1: 2 Medium (cosmetic language selector, public toggleTheme) + 2 Low; cycle 2: passed
+- [x] `codestyle-reviewer` — 2 Low/Nitpick findings (line lengths, comment density)
+- [x] `security-reviewer` — no issues found
+- [x] `performance-reviewer` — 2 Warning (beforeEach, redundant assertion) + 1 Info (race condition)
+- [x] `architect-reviewer` — 2 Warning (describe label, multi-phase test) + 2 Low/Suggestion
 
 ### 4. Engineer Assessment
-- [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), fixes applied, PASS (cycle 2)
+- [x] Engineer reviewed findings — Decision: ACCEPT (all Warning findings deferred with reasoning — conventions match existing test suite)
 
 ### 5. Completion
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** dbf14c6 feat: add shared header with navigation, theme toggle and language selector
+**Commit:** 67aa38a test: add playwright e2e test for theme toggle light/dark switching
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
