@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** (pending)
+**Commit:** a1d5a93 feat: add lazy-loaded child route /learn/fretboard-flash
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
