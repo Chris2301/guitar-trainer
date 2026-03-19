@@ -1,119 +1,67 @@
-# Review Feedback — Task 1.5 (Styling: bunny.net-inspired color palette, typography, spacing)
-## Status: FAIL
+# Review Feedback — Task 2.1 (Playwright test: learn page placeholder content)
+## Status: NEEDS ASSESSMENT
 ## Findings
 
 ### codestyle-reviewer
-- **Severity**: Medium
-- **Finding**: Inconsistent padding shorthand in `.hero` — uses `padding: gt.$section-padding` then overrides with `padding-top: 6rem; padding-bottom: 6rem;`
-- **Fix**: Use `padding: 6rem 1.5rem;` directly and remove the overrides
-
-- **Severity**: Medium
-- **Finding**: Magic numbers scattered through home.scss (font-sizes, spacings) without variable references
-- **Fix**: Extract commonly used values into `_variables.scss`
-
-- **Severity**: Low
-- **Finding**: Hardcoded animation delays per nth-child instead of using SCSS `@for` loop
-- **Fix**: Use `@for` loop for consistency with `.fade-in` utility pattern
-
-- **Severity**: Low
-- **Finding**: CTA wrapped in `<section>` but contains only a single link
-- **Fix**: Change to `<div>` or add semantic structure
-
-- **Severity**: Low
-- **Finding**: Inline hardcoded `#0a3050` in dark theme gradient instead of using `gt.$dark-elevation-2`
-- **Fix**: Use `#{gt.$dark-elevation-2}` for consistency
+No issues found.
 
 ### security-reviewer
 No issues found.
 
 ### performance-reviewer
-- **Severity**: Medium
-- **Finding**: No `prefers-reduced-motion` guard — page fires 6 CSS animations simultaneously on first paint, violating WCAG 2.1 AA (2.3.3)
-- **Fix**: Add `@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }` to `styles.scss`
-
-- **Severity**: Low
-- **Finding**: Card hover transitions `box-shadow` which triggers paint on every frame
-- **Fix**: Accept at current scale (4 cards) or use pseudo-element opacity pattern
-
-- **Severity**: Low
-- **Finding**: CTA shine effect transitions `left` property (triggers reflow) instead of `transform: translateX()`
-- **Fix**: Replace `left` transition with `transform: translateX()` for compositor-only animation
+No issues found.
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: CTA button replaced Taiga UI `tuiButton` with fully custom-styled anchor, deviating from project's Taiga UI component library decision
-- **Fix**: Either document the deviation with a comment explaining why (shine effect not achievable via Taiga UI API), or layer the shine effect on top of Taiga UI's button
+- **Finding**: The test asserts `exercise-slot` elements exist, but the spec (`specs/ui/spec.md`) only requires "placeholder content indicating training exercises will be available soon." The `exercise-slot` assertion over-specifies structure beyond what the spec requires.
+- **Fix**: Remove the `exercise-slot` assertion. The spec only requires placeholder content to be visible, not a list of exercise slots.
 
 - **Severity**: Medium
-- **Finding**: `fadeInUp` keyframe defined globally in `styles.scss` but referenced in encapsulated `home.scss` — fragile coupling. `.fade-in` utility class is dead code.
-- **Fix**: Move `@keyframes fadeInUp` into `home.scss` directly. Remove unused `.fade-in` utility class.
-
-- **Severity**: Medium
-- **Finding**: Raw hex `#0a3050` in dark theme gradient bypasses `_variables.scss` single-source-of-truth
-- **Fix**: Replace with `#{gt.$dark-elevation-2}`
+- **Finding**: The test description says "correct structure for future training exercises" but the spec scenario is simply "placeholder content is shown." The homepage test stays close to spec language — this test should do the same.
+- **Fix**: Trim the test to match spec intent: verify the page loads at `/learn`, a section is visible, a heading containing "Learn" is present, and a paragraph containing "training exercises" is visible.
 
 - **Severity**: Low
-- **Finding**: Dark theme card shadows hardcoded inline instead of using SCSS variables
-- **Fix**: Add `$card-shadow-dark` and `$card-shadow-hover-dark` to `_variables.scss`
+- **Finding**: The `page.goto('/learn')` call has no explicit `waitUntil` option. Consistent with homepage test pattern, but noted for robustness.
+- **Fix**: If flakiness appears, add `waitUntil: 'networkidle'`. Not urgent.
 
-- **Severity**: Low
-- **Finding**: Emoji icons accessibility handled correctly with `aria-hidden="true"` — no action needed
-- **Fix**: No change required
+**Note on "Critical" DOM mismatch findings**: The reviewer flagged that the test's `data-testid` attributes and `h1` heading don't match the current component. These are NOT bugs — this is TDD RED phase. The test defines the contract that task 2.2 (Create LearnComponent) must fulfill. The test is intentionally written to fail against the current state.
 
 ## Engineer Assessment
 ### Overall Decision: REFACTOR
 ### Reasoning per finding
-
-#### codestyle-reviewer — Inconsistent padding shorthand in `.hero`
+#### architect-reviewer — exercise-slot assertion over-specifies beyond spec
 - **Decision**: Fix
-- **Reasoning**: The current code sets `padding: gt.$section-padding` (which is `5rem 1.5rem`) and then immediately overrides the top/bottom with `padding-top: 6rem; padding-bottom: 6rem;`. This is confusing — the shorthand value is effectively dead for its vertical component. Replacing with `padding: 6rem 1.5rem` is a one-line fix that improves clarity. The same pattern repeats in the mobile breakpoint with `$section-padding-mobile` overridden by `4rem`. Straightforward cleanup.
+- **Reasoning**: The spec scenario for the learn page says "placeholder content is shown indicating that training exercises will be available soon." It does not mention a list of exercise slots, exercise categories, or any repeated structural elements. The `exercise-slot` assertion invents a DOM contract that has no basis in the requirement. This matters because in TDD RED phase, the test defines the contract for the next implementation step (task 2.2). An over-specified test forces the implementer to build structure the spec never asked for, which adds unnecessary complexity and couples the test to an arbitrary design decision. Removing the `exercise-slot` assertion keeps the test honest to the spec. This is a valid Medium finding and should be fixed.
 
-#### codestyle-reviewer — Magic numbers without variable references
+#### architect-reviewer — test description does not match spec language
 - **Decision**: Fix
-- **Reasoning**: Values like `font-size: 2rem`, `font-size: 1.2rem`, `font-size: 0.95rem`, `gap: 2rem`, `padding: 2rem` appear repeatedly in `home.scss` without corresponding variables in `_variables.scss`. The project already established the pattern of extracting sizing values (see `$hero-font-size`, `$subtitle-font-size`). Extracting the most-repeated values (heading size, card padding, icon size) keeps the variables file as the single source of truth and makes future theme adjustments easier. The key values to extract are feature heading size, card padding, and feature description size.
+- **Reasoning**: The current test name is "should display placeholder content with correct structure for future training exercises." The phrase "correct structure for future training exercises" implies structural assertions that go beyond the spec. The homepage test uses a name that closely mirrors its spec scenario ("should display hero, features and CTA linking to learn page"). This test should follow the same convention: describe what the user sees, not what the DOM structure looks like. A name like "should display placeholder content indicating training exercises coming soon" or similar would be more aligned with the spec. This is a straightforward rename with no risk, and it improves clarity for anyone reading test output. Fixing this alongside the exercise-slot removal is natural.
 
-#### performance-reviewer — No `prefers-reduced-motion` guard
-- **Decision**: Fix
-- **Reasoning**: This is a legitimate accessibility concern. The page fires multiple `fadeInUp` animations on load plus hover transitions on cards and CTA. Users who have configured reduced motion in their OS should not be subjected to these. Adding a `@media (prefers-reduced-motion: reduce)` rule in `styles.scss` is minimal effort (3-4 lines) and addresses WCAG 2.1 AA criterion 2.3.3. This is the right place to fix it globally rather than per-component.
-
-#### architect-reviewer — CTA button replaced Taiga UI `tuiButton` with custom anchor
-- **Decision**: Accept
-- **Reasoning**: The project spec in `project.md` explicitly calls for "shine-effect op hover" on buttons. Taiga UI's button API does not support injecting pseudo-element-based shine animations. Wrapping a Taiga UI button and overriding its styles to add the shine pseudo-element would be more fragile than a clean custom implementation. The current CTA button is a single, self-contained styled anchor with clear purpose. The deviation is justified by the design requirement. Adding a comment to document this decision is worthwhile and can be done during refactor.
-
-#### architect-reviewer — `fadeInUp` keyframe globally defined but used in encapsulated component; `.fade-in` is dead code
-- **Decision**: Fix
-- **Reasoning**: This is a real issue on two fronts. First, `home.scss` uses `animation: fadeInUp` which only works because Angular's `ViewEncapsulation.Emulated` does not encapsulate keyframe names — this is an implementation detail that could break if encapsulation changes. Moving the keyframe into `home.scss` makes the dependency explicit. Second, the `.fade-in` utility class in `styles.scss` is unused (the component uses inline `animation` declarations with manual delays instead). Dead code violates the project's code quality rules ("No dead code"). Both should be cleaned up.
-
-#### architect-reviewer — Raw hex `#0a3050` in dark theme gradient bypasses `_variables.scss`
-- **Decision**: Fix
-- **Reasoning**: The variable `$dark-elevation-2: #0a3050` already exists in `_variables.scss`. Using the raw hex in `_theme.scss` line 81 is an oversight — it defeats the single-source-of-truth pattern the variables file establishes. This is a one-character fix (replace the hex with the variable reference). Both the codestyle-reviewer and architect-reviewer flagged this independently, which confirms it is a real inconsistency.
+#### architect-reviewer — no explicit waitUntil on page.goto
+- **Decision**: Accept (no change needed)
+- **Reasoning**: This is a Low severity finding and the reviewer themselves note it is not urgent. The homepage test uses the same pattern without `waitUntil`, so both tests are consistent. Playwright's default `waitUntil: 'load'` is sufficient for a static SPA. Adding `networkidle` prematurely can actually slow tests down and introduce flakiness in CI environments where background requests (analytics, health checks) may keep the network busy. If flakiness appears later, this can be revisited then.
 
 #### Low-severity / Nitpick findings
-- **Hardcoded animation delays per nth-child**: Will fix during refactor since we are already touching the animation code (moving keyframes into `home.scss`). Using an `@for` loop is cleaner and scales if more cards are added.
-- **CTA wrapped in `<section>`**: Will not fix. The CTA is a visually distinct section of the page with its own background. Using `<section>` is semantically acceptable for a thematic grouping, even if it contains a single element. Changing to `<div>` would be equally valid but not meaningfully better.
-- **Inline `#0a3050` in dark theme gradient**: Already addressed above as part of the architect-reviewer Medium finding.
-- **Card hover `box-shadow` triggers paint**: Accept at current scale (4 cards). The reviewer themselves noted this is acceptable.
-- **CTA shine effect uses `left` instead of `transform`**: Will fix during refactor since we are already touching the CTA button styles. Using `transform: translateX()` is a compositor-only operation and the fix is straightforward.
-- **Dark theme card shadows as SCSS variables**: Will fix since we are already adding variables to `_variables.scss` for the magic numbers finding. Adding `$card-shadow-dark` and `$card-shadow-hover-dark` is consistent with the existing `$card-shadow` / `$card-shadow-hover` pattern.
+- The `waitUntil` finding is the only low-severity item. It will not be addressed now because it is speculative (no flakiness observed), the current pattern is consistent with the homepage test, and premature optimization of test configuration adds noise without value.
 
 ---
 
 ## Cycle 2 Review (after refactor)
 
 ### codestyle-reviewer
-No issues found. All previous findings confirmed fixed: padding shorthand consistent, magic numbers extracted to variables, animation delays use `@for` loop, hex replaced with variable reference.
+No issues found.
 
 ### security-reviewer
 No issues found.
 
 ### performance-reviewer
-No issues found. `prefers-reduced-motion` guard correctly applied. CTA shine effect now uses `transform: translateX()` instead of `left`.
+No issues found.
 
 ### architect-reviewer
-No issues found. All previous findings confirmed fixed: CTA deviation documented with comment, `fadeInUp` moved to component, `.fade-in` dead code removed, raw hex replaced with variable, dark theme shadows use SCSS variables.
+No issues found. Both previous findings confirmed fixed: exercise-slot assertion removed, test description updated to match spec language.
 
 ## Engineer Assessment (Cycle 2)
 ### Overall Decision: ACCEPT
 
 ### Reasoning
-All four reviewers returned no issues on re-review. All 5 Medium findings and 4 Low findings marked for fixing in cycle 1 were correctly addressed. No new issues introduced.
+All four reviewers returned no issues on re-review. Both Medium findings from cycle 1 were correctly addressed. No new issues introduced.

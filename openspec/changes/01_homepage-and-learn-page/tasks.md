@@ -11,7 +11,7 @@ The WHAT
 - [x] 1.5 Apply styling: bunny.net-inspired color palette, typography, spacing
 
 ## 2. Learn Page
-- [ ] 2.1 Write Playwright test: learn page shows placeholder content with correct structure
+- [x] 2.1 Write Playwright test: learn page shows placeholder content with correct structure
 - [ ] 2.2 Create LearnComponent with placeholder text and structure for future training exercises
 
 ## 3. Navigation and Layout
