@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 1.3 Feature highlights section (overview of what the app offers)
+**From tasks.md:** 1.4 Call-to-action button to learn page
 
 ## Checklist
 ### 1. Understanding
@@ -8,7 +8,7 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Updated the existing 3 generic feature cards (Free, No Ads, Gamified) to 4 domain-specific cards covering the app's core concepts: Fretboard Visualization, Quiz Mode, Warm-up Games, and Track Your Progress. Improved BEM naming in SCSS (`p` → `&__description`). Updated unit tests to verify exact count and domain terms.
+**Approach:** Changed the existing CTA button's Taiga UI appearance from `primary` to `accent` to use the orange palette defined in the theme. Removed hand-rolled SCSS gradient overrides that fought against Taiga UI's theming system. Fixed the unit test to assert `routerLink` attribute directly instead of relying on router `href` resolution.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
@@ -18,19 +18,19 @@
 **Test file(s):** `frontend/src/app/home/home.spec.ts`
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — passed, no issues
-- [x] `security-reviewer` — passed, no issues
-- [x] `performance-reviewer` — passed, no issues
-- [x] `architect-reviewer` — passed, no issues
+- [x] `codestyle-reviewer` — cycle 1: medium finding (broad selector), cycle 2: passed
+- [x] `security-reviewer` — passed (both cycles)
+- [x] `performance-reviewer` — passed (both cycles)
+- [x] `architect-reviewer` — cycle 1: medium finding (theming override) + low finding (fragile test), cycle 2: passed
 
 ### 4. Engineer Assessment
-- [x] Engineer reviewed findings — Decision: ACCEPT
+- [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), ACCEPT (cycle 2)
 
 ### 5. Completion
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** 3ddfecc feat: add domain-specific feature highlights to homepage
+**Commit:** 31eabdc feat: add call-to-action button navigating to learn page
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
