@@ -10,7 +10,7 @@ The WHAT
 - [x] 1.4 Logic for pool expansion: track which notes have been shown, expand when all current pool notes have been seen at least once
 
 ## 2. Fretboard Display
-- [ ] 2.1 Create/obtain fretboard image (guitar neck, fret 1-15, 6 strings)
+- [x] 2.1 Create/obtain fretboard image (guitar neck, fret 1-15, 6 strings)
 - [ ] 2.2 Implement `FretboardDisplayComponent` — displays image with overlay container
 - [ ] 2.3 Note marker overlay — dot at x/y position (percentages) on top of the image
 - [ ] 2.4 Responsive scaling — fretboard adapts to screen size, markers scale along

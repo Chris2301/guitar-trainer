@@ -1,5 +1,5 @@
 # Review Feedback
-## Status: FAIL
+## Status: PASS
 ## Findings
 ### codestyle-reviewer
 No issues found.
@@ -11,36 +11,33 @@ No issues found.
 No issues found.
 
 ### architect-reviewer
-- **Severity**: Medium
-- **Finding**: `getRandomNote` now has a hidden side effect — calling it auto-marks the returned note as shown and may silently trigger pool expansion. The method name implies a pure read operation. A caller who calls `getRandomNote` in a loop for statistical sampling (as the existing test on line 60 does) will unintentionally advance the pool and alter internal state as a side effect of what looks like a query. Rename to `drawNote` or `nextNote` to signal state advancement, or add a JSDoc comment documenting the side effect.
-- **Fix**: Rename `getRandomNote` to `drawNote` or `nextNote` to make the side effect self-documenting.
+- **Severity**: Warning
+- **Finding**: The spec file `fretboard-image.spec.ts` is placed under `src/app/learn/fretboard-flash/` but tests a static asset in `public/images/`, not an Angular module. It uses Node.js `fs` APIs directly. Every other `.spec.ts` in that folder tests a concrete TypeScript module.
+- **Fix**: Move the spec to a dedicated `tests/assets/` directory or add a comment clarifying it is an asset validation test.
 
-- **Severity**: Medium
-- **Finding**: The test "should trigger pool expansion when getRandomNote completes showing all pool notes" does not actually call `getRandomNote`. It calls `markNoteAsShown` directly, so it does not test the integration path it claims to test. The test title is misleading.
-- **Fix**: Rename the test to "should expand pool when all notes marked via markNoteAsShown" to match what it actually does.
+- **Severity**: Warning
+- **Finding**: The SVG uses absolute pixel coordinates in a 1000-unit viewBox while `note-data.ts` returns percentages. The coordinate systems are inconsistent — dot overlays placed at percentage positions will only coincide with SVG fret lines if the overlay container matches the viewBox dimensions proportionally.
+- **Fix**: Either change `note-data.ts` to return raw viewBox coordinates, or confirm the mapping with a comment and add a test to catch drift.
 
 - **Severity**: Low
-- **Finding**: `expandPool` at max fret clears `shownNoteKeys` but does not change `currentFret` or `pool`. The asymmetry is intentional but only explained by a comment. No code change required — documentation note.
-- **Fix**: No change needed; comment is sufficient.
+- **Finding**: The fret position formula is duplicated between `fretboard.svg` and `note-data.ts` with no cross-reference. If one is updated without the other, overlays will diverge.
+- **Fix**: Add a cross-reference comment in both files pointing to the other location.
+
+- **Severity**: Low
+- **Finding**: `tsconfig.spec.json` adds `"node"` to types globally for all spec files, but only one spec file needs it.
+- **Fix**: Acceptable for now; moving the asset spec out of the feature folder would allow narrower scoping.
 
 ## Engineer Assessment
-### Overall Decision: REFACTOR
+### Overall Decision: ACCEPT
 ### Reasoning per finding
-#### architect-reviewer — getRandomNote has hidden side effect, should be renamed
-- **Decision**: Fix
-- **Reasoning**: This is a valid finding. `getRandomNote` sounds like a pure query but it mutates internal state (marks as shown, may trigger pool expansion). The statistical test on line 60-68 calls it 50 times in a loop, which will cause multiple pool expansions as a side effect — the test still passes by coincidence because expansion adds more notes, but it is testing different behavior than intended. Renaming to `drawNote` or `nextNote` is cheap, improves API clarity, and prevents future misuse. The rename is low-risk and the method is not yet consumed by many callers since this is a new service.
+#### architect-reviewer — Spec file placement in Angular feature folder
+- **Decision**: Accept
+- **Reasoning**: The spec validates that the SVG asset meets structural requirements needed by the feature (correct number of strings, frets, markers). Placing it alongside the feature code that depends on the asset is a reasonable choice — it makes clear which feature owns and depends on this asset. Moving it to a separate `tests/assets/` directory would scatter related concerns. The Node.js `fs` usage is already accommodated by `tsconfig.spec.json` and does not cause issues. This is a stylistic preference, not a defect.
 
-#### architect-reviewer — misleading test title for pool expansion via getRandomNote
-- **Decision**: Fix
-- **Reasoning**: The test at line 77 claims to test pool expansion "when getRandomNote completes showing all pool notes" but calls `markNoteAsShown` directly. The title is misleading. Renaming the test to accurately describe what it does is trivial and improves test maintainability. Additionally, once `getRandomNote` is renamed to `drawNote`, this test's describe block name should also be updated.
+#### architect-reviewer — Coordinate system inconsistency between SVG and note-data.ts
+- **Decision**: Accept
+- **Reasoning**: This is intentional by design, not an inconsistency. The SVG uses absolute viewBox coordinates (0-1000 range) because that is how SVG works internally. The `note-data.ts` returns percentages because note overlays will be positioned using CSS percentage-based positioning on the container element that wraps the SVG image. Since the SVG uses `preserveAspectRatio="xMidYMid meet"`, a CSS overlay container that matches the SVG's rendered dimensions will have its percentage positions align correctly with the SVG fret lines. The SVG comments already document the percentage-to-pixel mapping explicitly (e.g., `y=8% => 16`, `x = 3 + (fret/15)*94 mapped to 1000-unit viewBox`), and the same formula is used in both files. The two coordinate systems serve different layers (SVG rendering vs. CSS overlay positioning) and are correctly related.
 
 #### Low-severity / Nitpick findings
-- The Low finding about `expandPool` behavior at max fret is acknowledged as a documentation-only note. No code change needed — the existing comment on line 73 is sufficient. Will not address.
-
-## Re-review (Cycle 2)
-### Status: PASS
-All 4 reviewers confirmed fixes were correctly applied. No new issues found.
-- **codestyle-reviewer**: No issues found
-- **security-reviewer**: No issues found
-- **performance-reviewer**: No issues found
-- **architect-reviewer**: Both fixes verified — `getRandomNote` renamed to `drawNote` throughout, misleading test title corrected
+- **Duplicated fret formula**: Accept. The SVG already contains comments documenting the formula (`x = 3 + (fret/15)*94 mapped to 1000-unit viewBox`) and `note-data.ts` uses the same formula in code. A formal cross-reference comment could help but the risk of drift is low given the formula is simple and already documented in SVG comments. Not worth a refactor cycle.
+- **Global "node" types in tsconfig.spec.json**: Accept. The reviewer themselves notes this is acceptable. Only one spec uses Node APIs and the global scope addition has no negative side effects on other tests. If more asset specs appear later this can be revisited.
