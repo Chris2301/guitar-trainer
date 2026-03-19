@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="nl" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="app.title" datatype="plaintext">
+        <source>Guitar Trainer</source>
+        <target>Gitaartrainer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.html</context>
+          <context context-type="linenumber">6,9</context>
+        </context-group>
+        <note priority="1" from="description">Application title</note>
+      </trans-unit>
+      <trans-unit id="html.lang" datatype="plaintext">
+        <source>en</source>
+        <target>nl</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/index.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="page.title" datatype="plaintext">
+        <source>GuitarTrainer</source>
+        <target>Gitaartrainer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/index.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

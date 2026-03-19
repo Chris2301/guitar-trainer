@@ -3,5 +3,6 @@
      nearest [tuiTheme] ancestor to determine their appearance, and our custom CSS
      variables in _theme.scss also depend on this attribute. -->
 <tui-root [attr.tuiTheme]="themeService.themeName()">
+  <h1 class="visually-hidden" i18n="Application title@@app.title">Guitar Trainer</h1>
   <router-outlet />
 </tui-root>
