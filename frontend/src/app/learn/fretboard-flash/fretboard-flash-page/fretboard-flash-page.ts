@@ -14,12 +14,18 @@ import { FretboardDisplayComponent } from '../fretboard-display/fretboard-displa
 })
 export class FretboardFlashPageComponent {
   private readonly gameState = inject(GameStateService);
+  private readonly progression = inject(ProgressionService);
 
   readonly state = this.gameState.state;
   readonly currentNote = this.gameState.currentNote;
   readonly isIdle = computed(() => this.state() === GameState.IDLE);
   readonly isShowAnswer = computed(() => this.state() === GameState.SHOW_ANSWER);
   readonly fretboardNote = computed(() => this.isShowAnswer() ? this.currentNote() : null);
+  readonly currentFret = computed(() => {
+    // Re-evaluate whenever the current note changes (each draw triggers a state change)
+    this.currentNote();
+    return this.progression.getCurrentFret();
+  });
 
   start(): void {
     this.gameState.start();

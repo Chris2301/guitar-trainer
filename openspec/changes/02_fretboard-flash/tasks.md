@@ -34,4 +34,4 @@ The WHAT
 ## 6. E2E Tests
 - [x] 6.1 Playwright test: navigation from Learn page to Fretboard Flash
 - [x] 6.2 Playwright test: game loop — note appears, answer appears on fretboard, next note
-- [ ] 6.3 Playwright test: progression — pool expands after open notes
+- [x] 6.3 Playwright test: progression — pool expands after open notes

@@ -1,63 +1,77 @@
-# Review Feedback — Task 6.2: Playwright test: game loop — note appears, answer appears on fretboard, next note
+# Review Feedback — Task 6.3: Playwright test: progression — pool expands after open notes
 ## Status: PASS
 ## Findings
 
 ### codestyle-reviewer
-- **Severity**: Low
-- **Finding**: Duplicate assertion — `page.getByTestId('note-marker')` is asserted as not visible at line 16 (IDLE state) and again at line 31 (after SHOW_NOTE), which is redundant since the marker wouldn't appear between those two points.
-- **Fix**: Remove the duplicate assertion at line 31 and its comment.
+- **Severity**: Nitpick
+- **Finding**: Multiple sequential `fastForward()` calls (5000 + 3000) could be combined into a single `fastForward(8000)` for readability.
+- **Fix**: Combine into `await page.clock.fastForward(8000)`.
 
 - **Severity**: Nitpick
-- **Finding**: Variable name `noteStillShown` is awkward.
-- **Fix**: Rename to something more descriptive like `noteAfterMarkerAppears`, or inline the assertion.
+- **Finding**: Side-effect invocation of `this.currentNote()` in computed signal is unconventional, though commented.
+- **Fix**: Consider exposing `currentFret` as a signal on `ProgressionService`.
+
+- **Severity**: Nitpick
+- **Finding**: Visually-hidden CSS pattern may duplicate a project utility class.
+- **Fix**: Check if project has a shared `.visually-hidden` utility.
 
 ### security-reviewer
 No issues found.
 
 ### performance-reviewer
-- **Severity**: Critical
-- **Finding**: Test waits against real production timers (5s SHOW_NOTE + 3s SHOW_ANSWER = 8s minimum wall-clock time per run). On CI with retries, this could burn 24s on one test.
-- **Fix**: Make timer durations injectable via an InjectionToken with test-overridable values, or expose a query parameter for fast mode. Reduce E2E timeout ceilings accordingly.
+- **Severity**: Medium
+- **Finding**: The `currentFret` computed signal reads `this.currentNote()` as a side-effect dependency, then calls `this.progression.getCurrentFret()` which is a plain method (not a signal). This creates a subtle reactivity gap — the computed only reflects a new fret on the next note draw, not immediately when expansion happens.
+- **Fix**: Expose `currentFret` as a `signal<number>` inside `ProgressionService` and update it directly in `expandPool()` and `reset()`.
 
-- **Severity**: Low
-- **Finding**: `page.getByTestId('note-marker')` is called 4 times before being assigned to a variable at line 35. Inconsistent with the pattern used for `startButton` and `noteDisplay`.
-- **Fix**: Hoist the `noteMarker` locator assignment to before the IDLE-state assertions.
+- **Severity**: Medium
+- **Finding**: In the E2E test, if `fastForward` does not flush Angular's change detection synchronously, `noteDisplay.textContent()` may read stale DOM, causing potential non-deterministic failures.
+- **Fix**: After each `fastForward` pair, add an assertion to ensure Angular has re-rendered before reading `noteDisplay.textContent()` in the next iteration.
 
-- **Severity**: Low
-- **Finding**: `textContent()` uses non-null assertion `!` without guard, which could produce misleading error messages.
-- **Fix**: Add a null check or use `expect(noteDisplay).toHaveText(...)` with regex.
+- **Severity**: Nitpick
+- **Finding**: `FRET_1_ONLY_NOTES` encodes domain knowledge not derived from the same source of truth. If data changes, the test constant will silently diverge.
+- **Fix**: Add a comment explaining why F and C are fret-1-exclusive.
 
 ### architect-reviewer
 - **Severity**: Medium
-- **Finding**: Test relies on hardcoded wall-clock delays tied to game's internal timing constants (~5s + ~3s). If those constants change, the test becomes silently wrong or flaky.
-- **Fix**: Expose timing constants as test-overridable values (e.g. query parameter or injectable token) so tests can control game pace.
+- **Finding**: `FRET_1_ONLY_NOTES` is an implicit contract with the domain model. If note data changes, the test could silently become weaker or produce false positives.
+- **Fix**: Instead of inferring expansion from note names, read the `current-fret` test ID directly and exit the loop when it changes from `'0'` to something higher.
+
+- **Severity**: Medium
+- **Finding**: Two `fastForward` calls per cycle (5000 + 3000) are magic numbers with no reference to the source constants. If timings change in `GameStateService`, the test loop silently becomes incorrect.
+- **Fix**: Add a comment referencing where the constants come from, or import them.
 
 - **Severity**: Low
-- **Finding**: Partial overlap with `fretboard-flash-theme.spec.ts` in the IDLE-to-SHOW_NOTE transition. Both tests click start and assert note visibility.
-- **Fix**: Extract shared game-start sequence into a helper. Not urgent at current scale.
+- **Finding**: The loop bound of 60 iterations is not justified. If pool composition changes, this could become flaky.
+- **Fix**: Document why 60 was chosen (coupon collector problem for 6 items).
 
 - **Severity**: Low
-- **Finding**: `VALID_NOTES` constant defined at module level could be shared with future tests.
-- **Fix**: Move to a shared helpers file when a second usage site appears.
+- **Finding**: `currentFret` computed signal uses `currentNote()` as a side-channel reactive dependency — a non-obvious pattern.
+- **Fix**: Consider exposing `getCurrentFret()` as a signal on `ProgressionService`.
 
 ## Engineer Assessment
 ### Overall Decision: ACCEPT
 ### Reasoning per finding
 
-#### performance-reviewer — Real timer waits cause 8s+ E2E test runtime (Critical)
+#### performance-reviewer — currentFret reactivity gap via plain method
 - **Decision**: Accept
-- **Reasoning**: The proposed fix (injectable timer durations or query-parameter fast mode) introduces production code complexity solely to speed up one E2E test. The 8s wall-clock time is well within normal bounds for an E2E test that validates a real-time game loop — Playwright tests routinely wait for animations, network calls, and timed transitions. Even with 3 retries the worst case is ~24s, which is not a CI bottleneck for a project of this scale with a small E2E suite. The test already uses Playwright's built-in `timeout` option on assertions, which is the idiomatic way to handle timed waits. Adding an InjectionToken or query parameter to bypass real timers would mean the E2E test no longer validates the actual user experience, which defeats the purpose of testing the game loop end-to-end. If the timer count or total test time becomes a real CI problem in the future, this can be revisited. The severity is overstated — this is a Low concern, not Critical.
+- **Reasoning**: The claimed reactivity gap does not manifest in practice. The call chain is: `drawNote()` calls `markNoteAsShown()` which calls `expandPool()` (updating `this.currentFret`) — all synchronously — before `GameStateService` calls `_currentNote.set(newNote)`. So when the `currentNote` signal changes and the computed re-evaluates, `getCurrentFret()` already returns the updated fret value. The pattern is unconventional but functionally correct. Making `currentFret` a signal in `ProgressionService` is a cleaner design, but it is an improvement, not a bug fix. The same suggestion appears as a Low/Nitpick from two other reviewers, reinforcing that this is a style preference rather than a correctness issue. Deferring to a future cleanup task.
 
-#### architect-reviewer — Hardcoded delays coupled to internal timing constants (Medium)
+#### performance-reviewer — stale DOM reads in E2E after fastForward
 - **Decision**: Accept
-- **Reasoning**: This is the same underlying concern as the performance-reviewer finding. The test does not hardcode the exact timer values — it uses Playwright assertion timeouts (7000ms for a 5000ms timer, 5000ms for a 3000ms timer) that provide generous margins. If someone changes the production timer constants, the E2E test would either still pass (if the new values are shorter) or fail visibly (if they are longer than the Playwright timeouts), which is the correct behavior — the test acts as a regression guard. The risk of "silent wrongness" is low because the test verifies observable UI state transitions, not internal timer values. Making timers injectable adds indirection to a simple service for marginal test benefit. At the current scale (one game, two timer constants), this is not worth the added complexity.
+- **Reasoning**: Playwright's `page.clock.fastForward()` with fake timers fires pending `setTimeout` callbacks synchronously, which triggers Angular zone-based change detection. The loop already calls `await expect(noteDisplay).toBeVisible()` each iteration, which uses Playwright's auto-waiting and retry mechanism. The test has been passing reliably. This is a theoretical concern without evidence of actual flakiness. If non-deterministic failures appear in CI, this would be the first place to investigate, but adding speculative stabilization now is premature.
+
+#### architect-reviewer — FRET_1_ONLY_NOTES implicit contract with domain model
+- **Decision**: Accept
+- **Reasoning**: The suggestion to watch `current-fret` test ID changing from `'0'` to a higher value is valid, but the test already does exactly this on line 50-51 (`expect(finalFret).toBeGreaterThanOrEqual(1)`). The `FRET_1_ONLY_NOTES` check is a secondary, complementary assertion that confirms expansion through a different observable (the actual notes appearing), making the test stronger. The domain data (open string notes, fret 1 notes) is musically fundamental and extremely unlikely to change. The existing comment block at lines 1-9 already documents the reasoning. The cost of this coupling is very low.
+
+#### architect-reviewer — magic numbers 5000 and 3000 in fastForward calls
+- **Decision**: Accept
+- **Reasoning**: The test already has a comment on line 44 explaining the values: "Advance through SHOW_NOTE (5s) then SHOW_ANSWER (3s) to reach next cycle". E2E tests run in a separate process and cannot import TypeScript constants from the Angular app without adding build tooling complexity. The existing comment is sufficient documentation. If the timings change in `GameStateService`, the E2E test would visibly fail (notes would not advance), making the breakage obvious rather than silent.
 
 #### Low-severity / Nitpick findings
-- **Locator hoisting** (performance-reviewer, Low): Reasonable cleanup. The `noteMarker` locator should be hoisted to match the pattern used for `startButton` and `noteDisplay`. Will address if a refactor round happens.
-- **Duplicate marker assertion** (codestyle-reviewer, Low): The assertion at line 31 is not truly redundant — it explicitly documents that during SHOW_NOTE state the marker is not yet visible, which is a distinct logical checkpoint from the IDLE state assertion at line 16. Acceptable to keep for readability as a demo-oriented test.
-- **`noteStillShown` naming** (codestyle-reviewer, Nitpick): Minor style preference. The current name is clear enough in context.
-- **Non-null assertion on `textContent()`** (performance-reviewer, Low): Valid point but low risk — if `textContent()` returns null, the test fails anyway, just with a less descriptive error. Could be improved with `toHaveText()` but not urgent.
-- **Shared game-start helper** (architect-reviewer, Low): Agreed with the reviewer's own note — not urgent at current scale. Apply when a second usage site appears.
-- **Shared `VALID_NOTES`** (architect-reviewer, Low): Same — defer until reuse is needed.
-
-None of these Low/Nitpick findings warrant a refactor pass on their own.
+- **codestyle — combine fastForward calls**: Accept as-is. Two separate calls mirror the two distinct game phases (SHOW_NOTE then SHOW_ANSWER), making the test more readable and debuggable. Combining them obscures the two-phase structure.
+- **codestyle — currentNote() side-effect in computed**: Accept as-is. Already addressed in the Medium finding reasoning above. Deferred to future cleanup.
+- **codestyle — visually-hidden CSS duplication**: Accept as-is. Worth checking but not blocking. If a shared utility exists, it can be adopted in a future cleanup.
+- **performance — FRET_1_ONLY_NOTES comment**: Accept as-is. The existing comment block at lines 1-9 of the test already explains why F and C are fret-1-exclusive.
+- **architect — loop bound of 60 not justified**: Accept as-is. The test already has a comment on line 29-30 explaining the coupon collector reasoning.
+- **architect — currentNote() side-channel dependency**: Accept as-is. Same as the codestyle and performance findings on this topic. Deferred.

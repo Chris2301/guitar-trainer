@@ -1,4 +1,5 @@
 <div class="fretboard-flash-page" data-testid="fretboard-flash-page">
+  <span class="current-fret" data-testid="current-fret" aria-hidden="true">{{ currentFret() }}</span>
   <div class="note-area" data-testid="note-area">
     @if (!isIdle()) {
       <div class="note-display" data-testid="note-display">
