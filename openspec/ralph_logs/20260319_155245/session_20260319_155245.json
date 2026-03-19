@@ -249,6 +249,19 @@
       },
       "cost_usd": 1.7706236499999994,
       "completed": true
+    },
+    {
+      "iteration": 20,
+      "task_assigned": "- [ ] 6.2 Playwright test: game loop — note appears, answer appears on fretboard, next note\n",
+      "duration_seconds": 387,
+      "tokens": {
+        "input": 26,
+        "output": 8578,
+        "cache_read": 615455,
+        "total": 624059
+      },
+      "cost_usd": 1.36452075,
+      "completed": true
     }
   ]
 }
