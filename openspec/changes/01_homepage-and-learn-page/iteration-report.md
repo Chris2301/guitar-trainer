@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 3.2 Configure routing (`/` → home, `/learn` → learn)
+**From tasks.md:** 3.3 Shared header with navigation links, theme toggle and language selector
 
 ## Checklist
 ### 1. Understanding
@@ -8,29 +8,29 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Routing was already configured from prior tasks (lazy-loaded routes in `app.routes.ts`, `provideRouter` in `app.config.ts`, `<router-outlet>` in `app.html`). Added unit tests to verify routing behavior, added wildcard fallback route, cleaned up redundant smoke/unit tests, and renamed a misleading test.
+**Approach:** Created a new `HeaderComponent` with navigation links (Home, Learn), a theme toggle button that calls `ThemeService.toggleTheme()` directly, and a language selector with NL/DE/EN buttons. Used Angular signals for reactive state, OnPush change detection, and Taiga UI theming integration. The header is placed inside `tui-root` in `AppComponent` above `router-outlet`.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
 - [x] Implemented minimum code to pass
 - [x] All tests pass
 
-**Test file(s):** `frontend/src/app/app.routes.spec.ts` (new), `frontend/src/app/app.spec.ts` (updated)
+**Test file(s):** `frontend/src/app/header/header.spec.ts` (10 unit tests), existing e2e tests in `e2e/` (4 tests all passing)
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — 1 Medium finding (misleading test name) → fixed in cycle 2
-- [x] `security-reviewer` — passed
-- [x] `performance-reviewer` — passed
-- [x] `architect-reviewer` — 3 Warning findings (test name, deleted smoke tests, missing wildcard) + 1 suggestion → test name and wildcard fixed, smoke test deletion accepted, suggestion deferred
+- [x] `codestyle-reviewer` — cycle 1: 2 Medium (signal usage, line length) + 2 Low; cycle 2: passed
+- [x] `security-reviewer` — no issues found (both cycles)
+- [x] `performance-reviewer` — cycle 1: 1 Warning (duplicate signal read) + 2 Low; cycle 2: passed
+- [x] `architect-reviewer` — cycle 1: 2 Medium (cosmetic language selector, public toggleTheme) + 2 Low; cycle 2: passed
 
 ### 4. Engineer Assessment
-- [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), then PASS (cycle 2)
+- [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), fixes applied, PASS (cycle 2)
 
 ### 5. Completion
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** 4a9535f feat: configure routing with wildcard fallback and routing unit tests
+**Commit:** dbf14c6 feat: add shared header with navigation, theme toggle and language selector
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
