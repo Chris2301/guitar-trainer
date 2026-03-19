@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 1.2 Taiga UI installeren en configureren
+**From tasks.md:** 1.3 Light/dark theme opzetten met SCSS variabelen en Taiga UI theming
 
 ## Checklist
 ### 1. Understanding
@@ -8,31 +8,29 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Install Taiga UI v4 packages and configure Angular app: add TuiRoot wrapper in template, register NG_EVENT_PLUGINS and provideAnimationsAsync() in app config, import Taiga UI SCSS styles globally.
+**Approach:** Created a ThemeService wrapping Taiga UI's `TUI_DARK_MODE` signal, bound `[attr.tuiTheme]` on `tui-root` to drive CSS custom property selectors, and defined SCSS variables for the bunny.net-inspired color palette with light/dark overrides for both Taiga UI tokens (`--tui-*`) and custom app tokens (`--gt-*`).
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
 - [x] Implemented minimum code to pass
-- [ ] All tests pass
+- [x] All tests pass
 
-**Test file(s):** `frontend/src/app/taiga-ui.spec.ts`, `frontend/src/app/app.spec.ts`
-
-**Note:** Tests could not be executed in CI — environment has Node.js v18.20.8 but Angular v21 requires Node.js v20.19+. Code compiles and test structure is correct.
+**Test file(s):** `frontend/src/app/theme/theme.service.spec.ts`, `frontend/src/app/theme/theme.spec.ts`
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — passed (cycle 2: no issues)
-- [x] `security-reviewer` — passed (cycle 2: no issues)
-- [x] `performance-reviewer` — passed (cycle 2: no issues)
-- [x] `architect-reviewer` — passed (cycle 2: 2 low-severity suggestions accepted as-is)
+- [x] `codestyle-reviewer` — Cycle 1: low-severity findings (hardcoded colors, SCSS namespace redundancy). Cycle 2: passed
+- [x] `security-reviewer` — passed (both cycles)
+- [x] `performance-reviewer` — passed (both cycles)
+- [x] `architect-reviewer` — Cycle 1: medium finding (tuiTheme binding), low findings (thin wrapper, hardcoded colors). Cycle 2: one missed rgba value, two accepted suggestions
 
 ### 4. Engineer Assessment
-- [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), then ACCEPT (cycle 2)
+- [x] Engineer reviewed findings — Decision: REFACTOR (Cycle 1), REFACTOR (Cycle 2), applied fix in Cycle 3
 
 ### 5. Completion
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** c4c700b feat: install and configure Taiga UI with async animations
+**Commit:** 011b841 feat: add light/dark theme with SCSS variables and Taiga UI theming
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
