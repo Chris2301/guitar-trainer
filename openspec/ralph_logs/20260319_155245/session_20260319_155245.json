@@ -262,6 +262,19 @@
       },
       "cost_usd": 1.36452075,
       "completed": true
+    },
+    {
+      "iteration": 21,
+      "task_assigned": "- [ ] 6.3 Playwright test: progression — pool expands after open notes\n",
+      "duration_seconds": 565,
+      "tokens": {
+        "input": 26,
+        "output": 9138,
+        "cache_read": 631314,
+        "total": 640478
+      },
+      "cost_usd": 2.3613075,
+      "completed": true
     }
   ]
 }
