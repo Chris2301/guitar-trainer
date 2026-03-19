@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FretNote, FRET_NOTES } from './note-data';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class NoteDataService {
   getNotesInFretRange(minFret: number, maxFret: number): FretNote[] {
     if (minFret > maxFret) {

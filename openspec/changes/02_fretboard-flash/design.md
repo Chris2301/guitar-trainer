@@ -10,8 +10,8 @@ An Angular page component with a timer-based state machine that drives flashcard
 **Rationale:** Realistic appearance without complex SVG/Canvas rendering. Simple to implement — one image + positioned markers. The x/y coordinates per note are stored as static data.
 
 ### Game state management
-**Choice:** Component-local state machine with three states: `SHOW_NOTE`, `SHOW_ANSWER`, `IDLE`
-**Rationale:** No complex state management needed (no NgRx/signals store). A simple RxJS timer flow in the component suffices for the v1 flashcard loop.
+**Choice:** Dedicated `GameStateService` using Angular Signals with three states: `SHOW_NOTE`, `SHOW_ANSWER`, `IDLE`
+**Rationale:** A dedicated service with signal-based state is more testable and keeps the page component thin. The service exposes readonly signals for `state` and `currentNote`, with explicit transition methods (`start`, `showAnswer`, `nextNote`, `stop`). No NgRx Signal Store needed — plain Angular signals suffice for the v1 flashcard loop.
 
 ### Note data storage
 **Choice:** Static TypeScript file with all note positions as an array of objects `{ string: number, fret: number, note: string, x: number, y: number }`
