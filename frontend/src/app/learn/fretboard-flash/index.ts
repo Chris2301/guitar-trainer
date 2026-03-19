@@ -1,1 +1,2 @@
-export { NaturalNote, FretNote, FRET_NOTES } from './note-data';
+export { NaturalNote, FretNote } from './note-data';
+export { NoteDataService } from './note-data.service';
