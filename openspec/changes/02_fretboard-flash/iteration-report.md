@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** (pending)
+**Commit:** 7382a06 feat: add timer-based auto-transitions to game state machine
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
