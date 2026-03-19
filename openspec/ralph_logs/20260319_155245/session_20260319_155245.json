@@ -67,6 +67,19 @@
       },
       "cost_usd": 3.1662604000000005,
       "completed": true
+    },
+    {
+      "iteration": 6,
+      "task_assigned": "- [ ] 2.1 Write Playwright test: learn page shows placeholder content with correct structure\n",
+      "duration_seconds": 454,
+      "tokens": {
+        "input": 33,
+        "output": 9645,
+        "cache_read": 852522,
+        "total": 862200
+      },
+      "cost_usd": 1.5201723,
+      "completed": true
     }
   ]
 }
