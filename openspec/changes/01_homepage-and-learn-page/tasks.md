@@ -8,7 +8,7 @@ The WHAT
 - [x] 1.2 Create HomeComponent with hero section (free, ad-free, gamified guitar training)
 - [x] 1.3 Feature highlights section (overview of what the app offers)
 - [x] 1.4 Call-to-action button to learn page
-- [ ] 1.5 Apply styling: bunny.net-inspired color palette, typography, spacing
+- [x] 1.5 Apply styling: bunny.net-inspired color palette, typography, spacing
 
 ## 2. Learn Page
 - [ ] 2.1 Write Playwright test: learn page shows placeholder content with correct structure

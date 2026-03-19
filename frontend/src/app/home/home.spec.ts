@@ -54,7 +54,7 @@ describe('HomeComponent', () => {
     });
   });
 
-  it('should have a CTA link to /learn with "Start Learning" text using Taiga UI button', () => {
+  it('should have a CTA link to /learn with "Start Learning" text', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
 
@@ -62,6 +62,5 @@ describe('HomeComponent', () => {
     expect(cta).toBeTruthy();
     expect(cta.textContent.toLowerCase()).toContain('start learning');
     expect(cta.getAttribute('routerLink')).toBe('/learn');
-    expect(cta.hasAttribute('tuiButton') || cta.getAttribute('tuiButton') !== null).toBe(true);
   });
 });

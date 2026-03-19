@@ -30,7 +30,14 @@
   --gt-neutral: #{gt.$neutral-light};
   --gt-neutral-mid: #{gt.$neutral-mid};
   --gt-text: #{gt.$primary-darker};
+  --gt-text-secondary: #{gt.$neutral-mid};
   --gt-surface: #{gt.$neutral-white};
+  --gt-surface-alt: #{gt.$section-bg-alt};
+  --gt-hero-bg: linear-gradient(135deg, #{gt.$primary-darker} 0%, #{gt.$primary-dark} 50%, #{gt.$primary-blue} 100%);
+  --gt-hero-text: #{gt.$neutral-white};
+  --gt-hero-subtitle: #{gt.$neutral-light};
+  --gt-card-shadow: #{gt.$card-shadow};
+  --gt-card-shadow-hover: #{gt.$card-shadow-hover};
 }
 
 // Dark theme overrides for Taiga UI CSS custom properties
@@ -68,5 +75,12 @@
   --gt-neutral: #{gt.$dark-neutral-subtle};
   --gt-neutral-mid: #{gt.$neutral-mid};
   --gt-text: #{gt.$neutral-white};
+  --gt-text-secondary: #{gt.$neutral-mid};
   --gt-surface: #{gt.$primary-dark};
+  --gt-surface-alt: #{gt.$primary-darker};
+  --gt-hero-bg: linear-gradient(135deg, #{gt.$primary-darker} 0%, #{gt.$primary-dark} 60%, #{gt.$dark-elevation-2} 100%);
+  --gt-hero-text: #{gt.$neutral-white};
+  --gt-hero-subtitle: #{gt.$neutral-light};
+  --gt-card-shadow: #{gt.$card-shadow-dark};
+  --gt-card-shadow-hover: #{gt.$card-shadow-hover-dark};
 }

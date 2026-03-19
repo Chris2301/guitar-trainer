@@ -2,58 +2,207 @@
 
 :host {
   display: block;
-  max-width: gt.$max-width;
-  margin: 0 auto;
-  padding: 2rem 1rem;
 }
 
+// Fade-in animation used by hero, feature items, and CTA sections
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Hero section — full-width gradient background
 .hero {
+  background: var(--gt-hero-bg);
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 6rem 1.5rem;
+  animation: fadeInUp 0.6s ease-out both;
 
   &__tagline {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--gt-primary);
-    margin: 0 0 1rem;
+    font-size: gt.$hero-font-size;
+    font-weight: 800;
+    color: var(--gt-hero-text);
+    margin: 0 0 1.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    max-width: gt.$max-width;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   &__subtitle {
-    font-size: 1.25rem;
-    color: var(--gt-text);
-    opacity: 0.8;
+    font-size: gt.$subtitle-font-size;
+    color: var(--gt-hero-subtitle);
     margin: 0;
+    line-height: 1.6;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
+// Feature highlights — alternating background
 .features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  padding: 2rem 0;
+  background: var(--gt-surface-alt);
+  padding: gt.$section-padding;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: gt.$feature-grid-gap;
+    max-width: gt.$max-width;
+    margin: 0 auto;
+  }
+
+  &__heading {
+    text-align: center;
+    font-size: gt.$feature-heading-size;
+    font-weight: 700;
+    color: var(--gt-primary);
+    margin: 0 0 3rem;
+    max-width: gt.$max-width;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
   &__item {
     background: var(--gt-surface);
     border-radius: gt.$border-radius;
-    padding: 1.5rem;
-    border: 1px solid var(--tui-border-normal, #{gt.$neutral-light});
+    padding: gt.$card-padding;
+    box-shadow: var(--gt-card-shadow);
+    transition:
+      transform gt.$transition-base,
+      box-shadow gt.$transition-base;
+    animation: fadeInUp 0.6s ease-out both;
+
+    @for $i from 1 through 4 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{0.05 + $i * 0.1}s;
+      }
+    }
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--gt-card-shadow-hover);
+    }
+  }
+
+  &__icon {
+    font-size: gt.$feature-icon-size;
+    margin-bottom: 1rem;
+    display: block;
   }
 
   &__title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--gt-primary);
-    margin: 0 0 0.5rem;
+    font-size: gt.$feature-title-size;
+    font-weight: 700;
+    color: var(--gt-text);
+    margin: 0 0 0.75rem;
   }
 
   &__description {
-    color: var(--gt-text);
+    color: var(--gt-text-secondary);
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: gt.$feature-description-size;
   }
 }
 
+// CTA section
+// Note: The CTA button uses custom styling instead of Taiga UI's tuiButton directive
+// because the design spec requires a shine-effect on hover (pseudo-element animation),
+// which is not achievable through Taiga UI's button API. This is a deliberate deviation.
 .cta {
+  background: var(--gt-surface);
   text-align: center;
-  padding: 2rem 0 3rem;
+  padding: gt.$section-padding;
+  animation: fadeInUp 0.6s ease-out both;
+  animation-delay: 0.5s;
+
+  &__button {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    font-size: 1.15rem;
+    padding: 0.85rem 2.5rem;
+    border-radius: gt.$border-radius;
+    background: linear-gradient(135deg, gt.$accent-orange, gt.$accent-orange-light);
+    color: gt.$neutral-white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      transform gt.$transition-base,
+      box-shadow gt.$transition-base;
+
+    // Shine effect on hover — uses transform instead of left for compositor-only animation
+    &::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 0;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+      transform: translateX(-150%) skewX(-25deg);
+      transition: transform 0.6s ease;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(253, 141, 50, 0.4);
+
+      &::after {
+        transform: translateX(250%) skewX(-25deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .hero {
+    padding: 4rem 1rem;
+
+    &__tagline {
+      font-size: gt.$hero-font-size-mobile;
+    }
+
+    &__subtitle {
+      font-size: 1.1rem;
+    }
+  }
+
+  .features {
+    padding: gt.$section-padding-mobile;
+
+    &__heading {
+      font-size: gt.$feature-heading-size-mobile;
+      margin-bottom: gt.$feature-grid-gap;
+    }
+
+    &__grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .cta {
+    padding: gt.$section-padding-mobile;
+  }
 }

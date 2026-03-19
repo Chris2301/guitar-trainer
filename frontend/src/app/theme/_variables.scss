@@ -21,9 +21,33 @@ $dark-border-normal: rgba(255, 255, 255, 0.14);
 $dark-neutral-subtle: rgba(255, 255, 255, 0.1);
 $dark-border-hover: rgba(255, 255, 255, 0.6);
 
+// Light section backgrounds
+$section-bg-alt: #f0f4f8;
+
 // Typography
 $font-family: ui-sans-serif, system-ui, sans-serif;
+$hero-font-size: 3.5rem;
+$hero-font-size-mobile: 2.25rem;
+$subtitle-font-size: 1.35rem;
+$feature-heading-size: 2rem;
+$feature-heading-size-mobile: 1.5rem;
+$feature-title-size: 1.2rem;
+$feature-description-size: 0.95rem;
+$feature-icon-size: 2rem;
 
 // Layout
 $max-width: 1140px;
 $border-radius: 0.8rem;
+$section-padding: 5rem 1.5rem;
+$section-padding-mobile: 3rem 1rem;
+$card-padding: 2rem;
+$feature-grid-gap: 2rem;
+
+// Shadows
+$card-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+$card-shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.14);
+$card-shadow-dark: 0 2px 12px rgba(0, 0, 0, 0.3);
+$card-shadow-hover-dark: 0 6px 24px rgba(0, 0, 0, 0.5);
+
+// Transitions
+$transition-base: 0.3s ease;
