@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 3.3 Integration with `ProgressionService` — request next random note
+**From tasks.md:** 3.4 `FretboardFlashPageComponent` — composition of note display, fretboard and game controls
 
 ## Checklist
 ### 1. Understanding
@@ -8,20 +8,20 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** The integration between `GameStateService` and `ProgressionService` was already implemented in tasks 3.1/3.2 (service calls `drawNote()` on start/nextNote and `reset()` on stop). This task added dedicated integration test coverage to verify the data flow between the two services, plus a JSDoc comment on `GameStateService`.
+**Approach:** Created a thin page component that composes the existing `FretboardDisplayComponent`, `GameStateService`, and `ProgressionService`. The component uses computed signals to derive UI state (isIdle, isShowAnswer, fretboardNote) from the game state service. Services are provided at component level for proper lifecycle cleanup. Template uses Angular control flow (`@if`/`@else`) to toggle between start/stop buttons and show/hide the note display.
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
 - [x] Implemented minimum code to pass
 - [x] All tests pass
 
-**Test file(s):** `frontend/src/app/learn/fretboard-flash/game-state.service.spec.ts`
+**Test file(s):** `frontend/src/app/learn/fretboard-flash/fretboard-flash-page/fretboard-flash-page.spec.ts`
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — passed (no issues)
-- [x] `security-reviewer` — passed (no issues)
-- [x] `performance-reviewer` — passed (no issues)
-- [x] `architect-reviewer` — 2 Medium findings (reference equality fixed, Math.random mock deferred), 2 Low findings (JSDoc added, Vitest confirmed)
+- [x] `codestyle-reviewer` — 1 Medium (hard-coded colors fixed in cycle 2), 1 Low (property grouping, not addressed)
+- [x] `security-reviewer` — passed (4 Low findings, all out of scope)
+- [x] `performance-reviewer` — passed (4 Low findings, all out of scope)
+- [x] `architect-reviewer` — 1 Medium (hard-coded colors fixed in cycle 2), 2 Low (NoteDataService scope, routing — deferred)
 
 ### 4. Engineer Assessment
 - [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), ACCEPT (cycle 2)
@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** b459475 test: add integration tests for GameStateService and ProgressionService
+**Commit:** 0f0604c feat: add FretboardFlashPageComponent composing note display, fretboard and controls
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
