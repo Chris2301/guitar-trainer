@@ -158,6 +158,19 @@
       },
       "cost_usd": 5.466665299999998,
       "completed": true
+    },
+    {
+      "iteration": 13,
+      "task_assigned": "- [ ] 4.3 Add translations for all visible text on homepage and learn page\n",
+      "duration_seconds": 559,
+      "tokens": {
+        "input": 24,
+        "output": 6854,
+        "cache_read": 631984,
+        "total": 638862
+      },
+      "cost_usd": 2.5987231000000004,
+      "completed": true
     }
   ]
 }
