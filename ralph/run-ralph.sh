@@ -1,14 +1,27 @@
 #!/bin/bash
 set -e
 
-DEPLOY_KEY="${DEPLOY_KEY:-$HOME/.ssh/ralph_deploy_key}"
 CLAUDE_CREDENTIALS="$HOME/.claude/.credentials.json"
 REPO_URL=$(git remote get-url origin)
 GIT_EMAIL=$(git config user.email)
 GIT_USER=$(git config user.name)
 
+# Derive expected deploy key name from the repo name
+REPO_NAME=$(basename -s .git "$REPO_URL")
+DEPLOY_KEY="${DEPLOY_KEY:-$HOME/.ssh/${REPO_NAME}_deploy_key}"
+
 if [ ! -f "$DEPLOY_KEY" ]; then
-    echo "Deploy key not found at $DEPLOY_KEY"
+    echo ""
+    echo -e "\033[1;31m  ⛔ DEPLOY KEY MISSING: \033[1;33m${DEPLOY_KEY}\033[0m"
+    echo ""
+    echo -e "  \033[1;36mRepo:\033[0m ${REPO_NAME}"
+    echo -e "  \033[1;36mURL:\033[0m  ${REPO_URL}"
+    echo ""
+    echo -e "  \033[1;37mCreate it:\033[0m"
+    echo -e "    \033[0;32m1.\033[0m ssh-keygen -t ed25519 -f \033[1;33m~/.ssh/${REPO_NAME}_deploy_key\033[0m -C \"ralph@${REPO_NAME}\""
+    echo -e "    \033[0;32m2.\033[0m Add the \033[1;33mpublic\033[0m key to GitHub → repo Settings → Deploy keys (enable \033[1;31mwrite access\033[0m)"
+    echo -e "    \033[0;32m3.\033[0m Re-run this script"
+    echo ""
     exit 1
 fi
 

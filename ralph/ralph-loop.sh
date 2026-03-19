@@ -220,6 +220,16 @@ CURRENT_BRANCH="$RUN_BRANCH"
 
 echo "Created run branch: $RUN_BRANCH"
 
+# Smoke test: make an initial commit and push to verify the deploy key works
+echo "Verifying deploy key with initial commit..."
+git commit --allow-empty -m "Ralph: start run $RUN_BRANCH"
+if git push origin "$RUN_BRANCH"; then
+    echo "Deploy key OK — push successful"
+else
+    echo "ERROR: deploy key verification failed — cannot push to origin"
+    exit 1
+fi
+
 while true; do
 
   echo "Scanning $CHANGE_DIR"
