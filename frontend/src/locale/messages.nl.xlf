@@ -110,6 +110,31 @@
         <target> Trainingsoefeningen komen binnenkort. Kom later terug voor interactieve fretboard-oefeningen, quizzen en opwarmspellen. </target>
         <note priority="1" from="description">Learn page placeholder</note>
       </trans-unit>
+      <trans-unit id="learn.fretboardFlash.title" datatype="html">
+        <source>Fretboard Flash</source>
+        <target>Fretboard Flash</target>
+        <note priority="1" from="description">Fretboard Flash card title</note>
+      </trans-unit>
+      <trans-unit id="learn.fretboardFlash.description" datatype="html">
+        <source>Learn the notes on the fretboard with flashcard-style exercises. Start with open strings and progress to higher frets.</source>
+        <target>Leer de noten op het fretboard met flashcard-oefeningen. Begin met open snaren en werk naar hogere frets.</target>
+        <note priority="1" from="description">Fretboard Flash card description</note>
+      </trans-unit>
+      <trans-unit id="fretboardFlash.startButton" datatype="html">
+        <source>Start</source>
+        <target>Start</target>
+        <note priority="1" from="description">Start game button</note>
+      </trans-unit>
+      <trans-unit id="fretboardFlash.stopButton" datatype="html">
+        <source>Stop</source>
+        <target>Stop</target>
+        <note priority="1" from="description">Stop game button</note>
+      </trans-unit>
+      <trans-unit id="fretboardFlash.fretboardAlt" datatype="html">
+        <source>Guitar fretboard</source>
+        <target>Gitaar fretboard</target>
+        <note priority="1" from="description">Fretboard image alt text</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
