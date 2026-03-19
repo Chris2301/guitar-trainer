@@ -30,7 +30,7 @@
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** see below
+**Commit:** a296099 test: add playwright e2e test for navigation between home and learn pages
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED

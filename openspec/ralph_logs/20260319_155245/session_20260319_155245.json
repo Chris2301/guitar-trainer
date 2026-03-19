@@ -93,6 +93,19 @@
       },
       "cost_usd": 2.0188664000000003,
       "completed": true
+    },
+    {
+      "iteration": 8,
+      "task_assigned": "- [ ] 3.1 Write Playwright test: navigation between home and learn works, header visible on both pages\n",
+      "duration_seconds": 282,
+      "tokens": {
+        "input": 26,
+        "output": 5708,
+        "cache_read": 600542,
+        "total": 606276
+      },
+      "cost_usd": 1.0053630499999997,
+      "completed": true
     }
   ]
 }
