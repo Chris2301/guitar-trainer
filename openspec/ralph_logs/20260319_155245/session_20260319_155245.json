@@ -119,6 +119,19 @@
       },
       "cost_usd": 2.1626136999999996,
       "completed": true
+    },
+    {
+      "iteration": 10,
+      "task_assigned": "- [ ] 3.3 Shared header with navigation links, theme toggle and language selector\n",
+      "duration_seconds": 872,
+      "tokens": {
+        "input": 3,
+        "output": 29,
+        "cache_read": 53612,
+        "total": 53644
+      },
+      "cost_usd": 3.708801700000001,
+      "completed": true
     }
   ]
 }
