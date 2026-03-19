@@ -1,6 +1,6 @@
 # Iteration Report
 ## Task
-**From tasks.md:** 2.1 Write Playwright test: learn page shows placeholder content with correct structure
+**From tasks.md:** 2.2 Create LearnComponent with placeholder text and structure for future training exercises
 
 ## Checklist
 ### 1. Understanding
@@ -8,29 +8,29 @@
 - [x] Read existing code that will be modified
 - [x] Documented approach below
 
-**Approach:** Write a Playwright E2E test (TDD RED phase) that defines the contract for the learn page: navigates to `/learn`, asserts a section with test ID is visible, verifies an h1 heading containing "Learn", and checks placeholder content mentioning "training exercises". Test is intentionally written to fail until task 2.2 implements the component.
+**Approach:** TDD GREEN phase — created LearnComponent with external template/styles to satisfy the failing Playwright test from task 2.1. Followed HomeComponent patterns (BEM SCSS, OnPush change detection, theme variables). After review, extracted shared `fadeInUp` animation to `_animations.scss` partial and fixed heading hierarchy (h1 → h2).
 
 ### 2. TDD Implementation
 - [x] Wrote failing test(s) first
 - [x] Implemented minimum code to pass
 - [x] All tests pass
 
-**Test file(s):** `frontend/e2e/journeys/learn-page.spec.ts`
+**Test file(s):** `frontend/src/app/learn/learn.spec.ts`, `frontend/e2e/journeys/learn-page.spec.ts`
 
 ### 3. Reviewers
-- [x] `codestyle-reviewer` — passed (both cycles)
-- [x] `security-reviewer` — passed (both cycles)
-- [x] `performance-reviewer` — passed (both cycles)
-- [x] `architect-reviewer` — cycle 1: 2 Medium (exercise-slot over-specification, test name mismatch); cycle 2: passed
+- [x] `codestyle-reviewer` — passed (no issues, both cycles)
+- [x] `security-reviewer` — passed (no issues, both cycles)
+- [x] `performance-reviewer` — passed (no issues, both cycles)
+- [x] `architect-reviewer` — cycle 1: 2 Medium findings (duplicated animation, heading hierarchy); cycle 2: passed after fixes
 
 ### 4. Engineer Assessment
-- [x] Engineer reviewed findings — Decision: cycle 1 REFACTOR, cycle 2 ACCEPT
+- [x] Engineer reviewed findings — Decision: REFACTOR (cycle 1), ACCEPT (cycle 2)
 
 ### 5. Completion
 - [x] Updated tasks.md — marked `[x]`
 - [x] Committed with conventional commit message
 
-**Commit:** ba8d16d test: add playwright e2e test for learn page placeholder content
+**Commit:** f5ecfbd feat: add learn page component with placeholder content and shared animations
 
 ## Result
 **Status:** [x] COMPLETE  [ ] BLOCKED
