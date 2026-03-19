@@ -1,0 +1,20 @@
+{
+  "session": "20260319_131839",
+  "feature": "01_homepage-and-learn-page",
+  "started": "2026-03-19T13:18:44+00:00",
+  "iterations": [
+    {
+      "iteration": 1,
+      "task_assigned": "- [ ] 1.1 Angular v21 project genereren met standalone components en SCSS\n",
+      "duration_seconds": 671,
+      "tokens": {
+        "input": 2520,
+        "output": 9904,
+        "cache_read": 989213,
+        "total": 1001637
+      },
+      "cost_usd": 2.7334006000000004,
+      "completed": true
+    }
+  ]
+}
