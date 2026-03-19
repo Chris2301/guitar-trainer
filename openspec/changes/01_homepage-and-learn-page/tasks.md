@@ -20,6 +20,6 @@ The WHAT
 - [x] 3.3 Shared header with navigation links, theme toggle and language selector
 
 ## 4. Theming and i18n Verification
-- [ ] 4.1 Write Playwright test: theme toggle switches between light and dark
+- [x] 4.1 Write Playwright test: theme toggle switches between light and dark
 - [ ] 4.2 Write Playwright test: switching language shows translations in NL, DE, EN
 - [ ] 4.3 Add translations for all visible text on homepage and learn page
