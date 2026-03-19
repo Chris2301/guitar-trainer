@@ -41,6 +41,19 @@
       },
       "cost_usd": 3.553602749999999,
       "completed": true
+    },
+    {
+      "iteration": 4,
+      "task_assigned": "- [ ] 1.4 i18n configureren (NL, DE, EN) met vertaalbestanden\n",
+      "duration_seconds": 1657,
+      "tokens": {
+        "input": 3206,
+        "output": 13877,
+        "cache_read": 1502030,
+        "total": 1519113
+      },
+      "cost_usd": 4.66291645,
+      "completed": true
     }
   ]
 }
